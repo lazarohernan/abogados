@@ -12,3 +12,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+console.log('Variables de entorno:', {
+  url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+  key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+});
