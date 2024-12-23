@@ -1,17 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { loadStripe } from '@stripe/stripe-js';
 import { supabase } from '@/lib/supabase';
 
+// Inicializar Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface SubscribeButtonProps {
   priceId: string;
-  tier: 'monthly' | 'yearly';
+  planType: 'monthly' | 'yearly';
+  className?: string;
 }
 
-export default function SubscribeButton({ priceId, tier }: SubscribeButtonProps) {
+export default function SubscribeButton({ 
+  priceId, 
+  planType,
+  className = ''
+}: SubscribeButtonProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleSubscribe = async () => {
@@ -20,10 +28,10 @@ export default function SubscribeButton({ priceId, tier }: SubscribeButtonProps)
 
       // Verificar si el usuario está autenticado
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         // Si no está autenticado, redirigir al login
-        window.location.href = '/login';
+        router.push('/login');
         return;
       }
 
@@ -40,16 +48,25 @@ export default function SubscribeButton({ priceId, tier }: SubscribeButtonProps)
         }),
       });
 
-      const { sessionId } = await response.json();
+      const { sessionId, error } = await response.json();
+
+      if (error) {
+        throw new Error(error);
+      }
 
       // Redirigir a Stripe Checkout
       const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe not loaded');
+      if (!stripe) throw new Error('Error cargando Stripe');
 
-      await stripe.redirectToCheckout({ sessionId });
+      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
+
+      if (stripeError) {
+        throw stripeError;
+      }
+
     } catch (error) {
       console.error('Error:', error);
-      alert('Ocurrió un error al procesar el pago. Por favor intenta nuevamente.');
+      alert('Error al procesar la suscripción. Por favor intenta nuevamente.');
     } finally {
       setLoading(false);
     }
@@ -59,11 +76,13 @@ export default function SubscribeButton({ priceId, tier }: SubscribeButtonProps)
     <button
       onClick={handleSubscribe}
       disabled={loading}
-      className={`block w-full rounded-md bg-blue-600 px-6 py-3 text-center text-white transition hover:bg-blue-700 ${
-        loading ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
+      className={`w-full px-6 py-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
-      {loading ? 'Procesando...' : `Suscribirse ${tier === 'yearly' ? 'anual' : 'mensual'}`}
+      {loading ? (
+        'Procesando...'
+      ) : (
+        `Suscribirse al plan ${planType === 'monthly' ? 'mensual' : 'anual'}`
+      )}
     </button>
   );
 }
