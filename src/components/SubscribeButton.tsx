@@ -1,14 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadStripe } from '@stripe/stripe-js';
 import { supabase } from '@/lib/supabase';
-
-// Verificar la clave pública de Stripe
-if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-  console.error('Missing Stripe publishable key');
-}
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -25,32 +20,36 @@ export default function SubscribeButton({
 }: SubscribeButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // Debug log para ver el priceId cuando el componente se monta
+  useEffect(() => {
+    console.log('SubscribeButton montado con:', {
+      priceId,
+      planType,
+      isValidFormat: priceId?.startsWith('price_')
+    });
+  }, [priceId, planType]);
 
   const handleSubscribe = async () => {
     try {
       setLoading(true);
-      setError(null);
 
-      // Validar priceId
-      if (!priceId) {
-        throw new Error('Price ID no disponible');
-      }
-
-      // Log para debugging
-      console.log('Iniciando suscripción:', {
+      // Debug log antes de la validación
+      console.log('Iniciando proceso de suscripción:', {
         priceId,
-        planType
+        planType,
+        stripeKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
       });
+
+      // Validación del priceId
+      if (!priceId || !priceId.startsWith('price_')) {
+        throw new Error(`ID de precio inválido: ${priceId}`);
+      }
 
       // Verificar autenticación
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-      if (authError) {
-        throw new Error(`Error de autenticación: ${authError.message}`);
-      }
-
-      if (!user) {
+      
+      if (authError || !user) {
         router.push('/login');
         return;
       }
@@ -68,12 +67,6 @@ export default function SubscribeButton({
         }),
       });
 
-      // Log de la respuesta para debugging
-      console.log('Respuesta del servidor:', {
-        status: response.status,
-        ok: response.ok
-      });
-
       const data = await response.json();
 
       if (!response.ok) {
@@ -82,51 +75,42 @@ export default function SubscribeButton({
 
       // Redireccionar a Stripe
       const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('No se pudo cargar Stripe');
-      }
+      if (!stripe) throw new Error('Error al cargar Stripe');
 
-      const { error: stripeError } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId
-      });
+      await stripe.redirectToCheckout({ sessionId: data.sessionId });
 
-      if (stripeError) {
-        throw stripeError;
-      }
-
-    } catch (err) {
-      console.error('Error completo:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(errorMessage);
-      alert(`Error al procesar la suscripción: ${errorMessage}`);
+    } catch (error) {
+      console.error('Error completo:', error);
+      alert(error instanceof Error ? error.message : 'Error al procesar la suscripción');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!priceId) {
+  // Si el priceId no es válido, mostrar un botón deshabilitado con mensaje
+  if (!priceId?.startsWith('price_')) {
+    console.warn('Price ID inválido:', priceId);
     return (
       <button
         disabled
         className={`w-full px-6 py-3 text-white bg-gray-400 rounded-md ${className}`}
       >
-        Price ID no disponible
+        Configuración pendiente
       </button>
     );
   }
 
   return (
-    <div>
-      <button
-        onClick={handleSubscribe}
-        disabled={loading}
-        className={`w-full px-6 py-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
-      >
-        {loading ? 'Procesando...' : `Suscribirse al plan ${planType === 'monthly' ? 'mensual' : 'anual'}`}
-      </button>
-      {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
+    <button
+      onClick={handleSubscribe}
+      disabled={loading}
+      className={`w-full px-6 py-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    >
+      {loading ? (
+        'Procesando...'
+      ) : (
+        `Suscribirse al plan ${planType === 'monthly' ? 'mensual' : 'anual'}`
       )}
-    </div>
+    </button>
   );
 }
