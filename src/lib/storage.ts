@@ -1,5 +1,5 @@
 export const storage = {
-  get: (key: string) => {
+  get: (key: string): string | null => {
     if (typeof window === 'undefined') return null;
     try {
       return window.localStorage.getItem(key);
@@ -9,7 +9,7 @@ export const storage = {
     }
   },
   
-  set: (key: string, value: string) => {
+  set: (key: string, value: string): void => {
     if (typeof window === 'undefined') return;
     try {
       window.localStorage.setItem(key, value);
@@ -18,7 +18,7 @@ export const storage = {
     }
   },
   
-  remove: (key: string) => {
+  remove: (key: string): void => {
     if (typeof window === 'undefined') return;
     try {
       window.localStorage.removeItem(key);
