@@ -24,7 +24,7 @@ export default function Login() {
       });
 
       if (error) throw error;
-      
+
       router.push('/dashboard');
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al iniciar sesión');
