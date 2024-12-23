@@ -1,71 +1,75 @@
 'use client';
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { checkSupabaseConnection } from '@/lib/supabase';
 
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { signUp, loading, error } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    fullName: '',
+  });
+  const [status, setStatus] = useState<string>('');
 
-  const handleRegister = async (e: React.FormEvent) => {
+  useEffect(() => {
+    // Verificar conexión con Supabase al cargar
+    const checkConnection = async () => {
+      const isConnected = await checkSupabaseConnection();
+      setStatus(isConnected ? 'Conectado a Supabase' : 'Error de conexión con Supabase');
+    };
+    checkConnection();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    setStatus('Iniciando registro...');
+
+    // Validación de contraseñas
+    if (formData.password !== formData.confirmPassword) {
+      setStatus('Las contraseñas no coinciden');
+      return;
+    }
 
     try {
-      // Validar datos
-      if (fullName.trim().length < 3 || fullName.trim().length > 100) {
-        throw new Error('El nombre completo debe tener entre 3 y 100 caracteres');
-      }
-
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        throw new Error('Ingresa un correo electrónico válido');
-      }
-
-      if (password.length < 8) {
-        throw new Error('La contraseña debe tener al menos 8 caracteres');
-      }
-
-      // Registrar usuario
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
+      setStatus('Registrando usuario...');
+      console.log('Iniciando registro con datos:', {
+        email: formData.email,
+        fullName: formData.fullName
       });
 
-      if (authError) throw authError;
+      const result = await signUp({
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+      });
 
-      if (authData.user) {
-        // Crear perfil en la tabla profiles
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: authData.user.id,
-              email: email,
-              full_name: fullName,
-              subscription_status: 'trial',
-            },
-          ]);
+      console.log('Resultado del registro:', result);
 
-        if (profileError) throw profileError;
+      if (result.error) {
+        setStatus(`Error: ${result.error}`);
+        return;
       }
 
-      router.push('/dashboard');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al registrarse');
-    } finally {
-      setLoading(false);
+      if (result.user) {
+        setStatus('Registro exitoso. Redirigiendo...');
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error('Error en registro:', err);
+      setStatus(`Error inesperado: ${err instanceof Error ? err.message : 'Error desconocido'}`);
     }
   };
 
@@ -73,63 +77,71 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Crea tu cuenta
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
+            Crear cuenta nueva
           </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleRegister}>
+          {status && (
+            <div className="mt-2 p-2 text-sm text-center rounded bg-blue-50 text-blue-600">
+              {status}
+            </div>
+          )}
           {error && (
-            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="mt-2 p-2 text-sm text-center rounded bg-red-50 text-red-600">
               {error}
             </div>
           )}
+        </div>
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="fullName" className="sr-only">
-                Nombre completo
-              </label>
               <input
                 id="fullName"
                 name="fullName"
                 type="text"
                 required
-                minLength={3}
-                maxLength={100}
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                value={formData.fullName}
+                onChange={handleChange}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Nombre completo"
               />
             </div>
             <div>
-              <label htmlFor="email" className="sr-only">
-                Correo electrónico
-              </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Correo electrónico"
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                Contraseña
-              </label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                value={formData.password}
+                onChange={handleChange}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Contraseña"
+                minLength={6}
+              />
+            </div>
+            <div>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Confirmar contraseña"
+                minLength={6}
               />
             </div>
           </div>
@@ -142,16 +154,13 @@ export default function Register() {
                 loading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {loading ? 'Registrando...' : 'Registrarse'}
+              {loading ? 'Procesando...' : 'Crear cuenta'}
             </button>
           </div>
         </form>
 
         <div className="text-center">
-          <Link
-            href="/login"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
+          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
             ¿Ya tienes una cuenta? Inicia sesión
           </Link>
         </div>
