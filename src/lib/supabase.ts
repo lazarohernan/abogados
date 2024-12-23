@@ -4,16 +4,30 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables:', {
-    url: !!supabaseUrl,
-    key: !!supabaseAnonKey
-  });
-  throw new Error('Missing Supabase environment variables');
+  throw new Error('Faltan variables de entorno de Supabase');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-console.log('Variables de entorno:', {
-  url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-  key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// Crear el cliente de Supabase con opciones de debug
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
 });
+
+// Función para verificar la conexión
+export const checkSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    console.log('Supabase Connection Check:', { 
+      connected: !!supabase,
+      hasSession: !!data.session,
+      error: error || 'No error'
+    });
+    return !error;
+  } catch (err) {
+    console.error('Supabase Connection Error:', err);
+    return false;
+  }
+};
