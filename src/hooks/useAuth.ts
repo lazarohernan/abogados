@@ -18,8 +18,8 @@ export const useAuth = () => {
       setLoading(true);
       setError(null);
 
-      // 1. Crear usuario en Auth
-      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+      // 1. Registro en Auth
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -29,30 +29,55 @@ export const useAuth = () => {
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('Error en signUp:', signUpError);
+        throw signUpError;
+      }
 
-      if (!user) throw new Error('No se pudo crear el usuario');
+      if (!authData.user) {
+        throw new Error('No se recibieron datos del usuario');
+      }
 
-      // 2. Crear perfil en la tabla profiles
-      const { error: profileError } = await supabase
+      console.log('Usuario creado:', authData.user);
+
+      // 2. Insertar en profiles
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .insert([
-          {
-            id: user.id,
-            email: email,
-            full_name: fullName,
-            subscription_status: 'trial',
-            trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 días de prueba
-          },
-        ]);
+        .insert({
+          id: authData.user.id,
+          email: email,
+          full_name: fullName,
+          subscription_status: 'trial',
+          trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        })
+        .select()
+        .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error al crear perfil:', profileError);
+        // Intenta obtener más detalles del error
+        const { data: errorDetails, error: errorCheckError } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', authData.user.id);
+          
+        console.log('Detalles de verificación:', { errorDetails, errorCheckError });
+        throw profileError;
+      }
 
-      return { user, error: null };
+      console.log('Perfil creado:', profileData);
+
+      return {
+        user: authData.user,
+        profile: profileData,
+        error: null
+      };
+
     } catch (err) {
+      console.error('Error completo:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error en el registro';
       setError(errorMessage);
-      return { user: null, error: errorMessage };
+      return { user: null, profile: null, error: errorMessage };
     } finally {
       setLoading(false);
     }
