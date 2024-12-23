@@ -46,10 +46,7 @@ export default function Login() {
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
-        password: formData.password,
-        options: {
-          persistSession: rememberMe // Persistir la sesión si remember me está activo
-        }
+        password: formData.password
       });
 
       if (error) throw error;
