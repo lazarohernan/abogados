@@ -1,18 +1,25 @@
+'use client';
+
 import SubscribeButton from '@/components/SubscribeButton';
 import Link from 'next/link';
 
 export default function Home() {
+  // Obtener los IDs de precios de las variables de entorno
+  const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+  const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+
+  // Log para debugging
+  console.log('Price IDs:', { monthlyPriceId, yearlyPriceId });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Menú de Navegación */}
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex-shrink-0">
-              <Link href="/" className="text-2xl font-bold text-blue-600">
-                LegalIA Honduras
-              </Link>
-            </div>
+            <Link href="/" className="text-2xl font-bold text-blue-600">
+              LegalIA Honduras
+            </Link>
             <div className="flex space-x-4">
               <Link
                 href="/login"
@@ -41,19 +48,18 @@ export default function Home() {
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl lg:text-6xl mb-6">
             Asistente Legal Inteligente
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Obtén respuestas instantáneas sobre leyes y normativas hondureñas con el poder de la Inteligencia Artificial
           </p>
         </div>
 
-        {/* Características Principales */}
+        {/* Características */}
         <div className="mt-20 grid grid-cols-1 gap-8 md:grid-cols-3">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="text-blue-600 mb-4">
-              {/* Icono */}
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -83,14 +89,14 @@ export default function Home() {
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="text-blue-600 mb-4">
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Siempre Actualizado
+              Base Legal Actualizada
             </h3>
             <p className="text-gray-600">
-              Base de datos actualizada con las últimas modificaciones legales.
+              Acceso a la legislación más reciente y actualizada de Honduras.
             </p>
           </div>
         </div>
@@ -110,26 +116,26 @@ export default function Home() {
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
+                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span className="ml-2">Consultas ilimitadas</span>
                 </li>
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
+                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span className="ml-2">Soporte prioritario</span>
                 </li>
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
+                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
-                  <span className="ml-2">Acceso a todas las funciones</span>
+                  <span className="ml-2">Acceso completo a la base de datos</span>
                 </li>
               </ul>
               <SubscribeButton 
-                priceId={process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!}
+                priceId={monthlyPriceId || ''}
                 planType="monthly"
                 className="mt-8"
               />
@@ -152,26 +158,26 @@ export default function Home() {
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
+                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span className="ml-2">Todo lo del plan mensual</span>
                 </li>
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
+                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span className="ml-2">2 meses gratis</span>
                 </li>
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
+                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span className="ml-2">Acceso a contenido premium</span>
                 </li>
               </ul>
               <SubscribeButton 
-                priceId={process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!}
+                priceId={yearlyPriceId || ''}
                 planType="yearly"
                 className="mt-8"
               />
@@ -179,7 +185,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Sección de Garantía */}
+        {/* Garantía */}
         <div className="mt-16 text-center">
           <p className="text-gray-600">
             Prueba sin riesgo - 7 días de garantía de devolución de dinero
@@ -195,10 +201,14 @@ export default function Home() {
               <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Producto</h4>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <a href="#features" className="text-gray-600 hover:text-gray-900">Características</a>
+                  <a href="#features" className="text-gray-600 hover:text-gray-900">
+                    Características
+                  </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="text-gray-600 hover:text-gray-900">Precios</a>
+                  <a href="#pricing" className="text-gray-600 hover:text-gray-900">
+                    Precios
+                  </a>
                 </li>
               </ul>
             </div>
@@ -206,10 +216,14 @@ export default function Home() {
               <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Soporte</h4>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Ayuda</a>
+                  <Link href="/help" className="text-gray-600 hover:text-gray-900">
+                    Ayuda
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Contacto</a>
+                  <Link href="/contact" className="text-gray-600 hover:text-gray-900">
+                    Contacto
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -217,10 +231,14 @@ export default function Home() {
               <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Legal</h4>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Privacidad</a>
+                  <Link href="/privacy" className="text-gray-600 hover:text-gray-900">
+                    Privacidad
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Términos</a>
+                  <Link href="/terms" className="text-gray-600 hover:text-gray-900">
+                    Términos
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -228,17 +246,21 @@ export default function Home() {
               <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Empresa</h4>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Sobre nosotros</a>
+                  <Link href="/about" className="text-gray-600 hover:text-gray-900">
+                    Sobre nosotros
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900">Blog</a>
+                  <Link href="/blog" className="text-gray-600 hover:text-gray-900">
+                    Blog
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="mt-8 border-t border-gray-200 pt-8 text-center">
             <p className="text-gray-400 text-sm">
-              © 2024 LegalIA Honduras. Todos los derechos reservados.
+              © {new Date().getFullYear()} LegalIA Honduras. Todos los derechos reservados.
             </p>
           </div>
         </div>
