@@ -1,67 +1,26 @@
-import { headers } from 'next/headers';
+import { createCheckoutSession } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
-import { supabase } from '@/lib/supabase';
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const signature = headers().get('Stripe-Signature') as string;
-
-  let event;
-
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    const { priceId, userId, customerEmail } = await req.json();
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    
+    const session = await createCheckoutSession({
+      priceId,
+      userId,
+      customerEmail,
+      successUrl: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${baseUrl}/pricing`,
+    });
+
+    return NextResponse.json({ sessionId: session.id });
   } catch (error) {
-    console.error('Error verifying webhook signature:', error);
-    return new NextResponse(
-      `Webhook Error: ${error instanceof Error ? error.message : 'Unknown Error'}`,
-      { status: 400 }
+    console.error('Error creating checkout session:', error);
+    return NextResponse.json(
+      { error: 'Error creating checkout session' },
+      { status: 500 }
     );
-  }
-
-  try {
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object as any;
-        const userId = session.metadata.userId;
-        const customerId = session.customer;
-
-        // Actualizar el perfil del usuario
-        await supabase
-          .from('profiles')
-          .update({
-            stripe_customer_id: customerId,
-            subscription_status: 'active',
-            subscription_tier: session.amount_total === 2000 ? 'monthly' : 'yearly',
-          })
-          .eq('id', userId);
-
-        break;
-      }
-
-      case 'customer.subscription.updated':
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object as any;
-        
-        // Actualizar el estado de la suscripción
-        await supabase
-          .from('profiles')
-          .update({
-            subscription_status: subscription.status === 'active' ? 'active' : 'inactive',
-          })
-          .eq('stripe_customer_id', subscription.customer);
-
-        break;
-      }
-    }
-
-    return new NextResponse(null, { status: 200 });
-  } catch (error) {
-    console.error('Error processing webhook:', error);
-    return new NextResponse('Webhook handler failed', { status: 500 });
   }
 }
