@@ -25,140 +25,6 @@ interface ChatMessage {
   created_at?: string;
 }
 
-// Componente Sidebar
-const Sidebar = ({ profile, chatHistory }: { profile: UserProfile | null; chatHistory: ChatMessage[] }) => (
-  <div className="md:col-span-1 space-y-6">
-    {/* Perfil del Usuario */}
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-          <span className="text-xl font-bold text-blue-600">
-            {profile?.full_name?.charAt(0)}
-          </span>
-        </div>
-        <div>
-          <h3 className="font-semibold text-gray-900">{profile?.full_name}</h3>
-          <p className="text-sm text-gray-500">{profile?.email}</p>
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Estado</span>
-          <span className={`text-sm px-2 py-1 rounded-full ${
-            profile?.subscription_status === 'trial' 
-              ? 'bg-yellow-100 text-yellow-800' 
-              : profile?.subscription_status === 'active'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {profile?.subscription_status === 'trial' 
-              ? 'Prueba Gratuita' 
-              : profile?.subscription_status === 'active'
-              ? 'Activo'
-              : 'Inactivo'}
-          </span>
-        </div>
-        {profile?.trial_end && (
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-500">Expira</span>
-            <span className="text-sm font-medium">
-              {new Date(profile.trial_end).toLocaleDateString()}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-
-    {/* Estadísticas */}
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Estadísticas</h3>
-      <div className="space-y-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-500">Consultas</span>
-            <span className="text-lg font-semibold text-gray-900">
-              {chatHistory.filter(msg => msg.role === 'user').length}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(chatHistory.filter(msg => msg.role === 'user').length * 10, 100)}%` }}
-            ></div>
-          </div>
-        </div>
-        
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-500">Documentos</span>
-            <span className="text-lg font-semibold text-gray-900">0</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div className="bg-green-600 h-2.5 rounded-full w-0"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Enlaces Rápidos */}
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Enlaces Rápidos</h3>
-      <div className="space-y-2">
-        <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600 flex items-center space-x-2 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <span>Documentos Recientes</span>
-        </button>
-        <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600 flex items-center space-x-2 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span>Nueva Consulta</span>
-        </button>
-        <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 text-sm text-gray-600 flex items-center space-x-2 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span>Configuración</span>
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-// Componente de Mensaje
-const ChatMessage = ({ message }: { message: ChatMessage }) => (
-  <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-    {message.role === 'assistant' && (
-      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-        <span className="text-sm font-medium text-blue-600">AI</span>
-      </div>
-    )}
-    <div
-      className={`max-w-[70%] p-4 rounded-xl ${
-        message.role === 'user'
-          ? 'bg-blue-600 text-white ml-2'
-          : 'bg-gray-100 text-gray-900'
-      }`}
-    >
-      <div className="prose prose-sm">
-        {message.content}
-      </div>
-      <div className="mt-1 text-xs opacity-70">
-        {message.created_at && new Date(message.created_at).toLocaleTimeString()}
-      </div>
-    </div>
-    {message.role === 'user' && (
-      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center ml-2">
-        <span className="text-sm font-medium text-gray-600">U</span>
-      </div>
-    )}
-  </div>
-);
-
-// Componente Principal
 export default function Dashboard() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -166,10 +32,10 @@ export default function Dashboard() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
   const [conversationId] = useState(() => crypto.randomUUID());
-
-  const { messages, sendMessage, isTyping, currentMessage } = useChat(conversationId);
   const [inputMessage, setInputMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const { messages, sendMessage, isTyping, currentMessage } = useChat(conversationId);
 
   useEffect(() => {
     checkUser();
@@ -260,12 +126,20 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="flex items-center gap-4">
-              <button
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Cerrar sesión
-              </button>
+              {profile && (
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900">{profile.full_name}</div>
+                    <div className="text-xs text-gray-500">{profile.email}</div>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -275,11 +149,65 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <Sidebar profile={profile} chatHistory={messages} />
+          <div className="md:col-span-1 space-y-6">
+            {/* Perfil y Plan */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Tu Plan</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">Estado</span>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    ${profile?.subscription_status === 'trial' ? 'bg-yellow-100 text-yellow-800' : 
+                      profile?.subscription_status === 'active' ? 'bg-green-100 text-green-800' : 
+                      'bg-red-100 text-red-800'}`}>
+                    {profile?.subscription_status === 'trial' ? 'Prueba' : 
+                     profile?.subscription_status === 'active' ? 'Activo' : 'Inactivo'}
+                  </span>
+                </div>
+                {profile?.subscription_status === 'trial' && profile?.trial_end && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Expira</span>
+                    <span className="text-sm text-gray-900">
+                      {new Date(profile.trial_end).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {profile?.subscription_tier && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Plan</span>
+                    <span className="text-sm text-gray-900 capitalize">
+                      {profile.subscription_tier}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Estadísticas */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Estadísticas</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-500">Consultas</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {messages.filter(m => m.role === 'user').length}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min(messages.filter(m => m.role === 'user').length * 10, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Chat Area */}
           <div className="md:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-[600px]">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-[calc(100vh-12rem)]">
               {subscriptionExpired ? (
                 <div className="flex-1 flex items-center justify-center p-8">
                   <div className="text-center">
@@ -291,9 +219,7 @@ export default function Dashboard() {
                     </p>
                     <button
                       onClick={() => router.push('/pricing')}
-                      className="
-onClick={() => router.push('/pricing')}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       Ver planes de suscripción
                     </button>
@@ -301,49 +227,65 @@ onClick={() => router.push('/pricing')}
                 </div>
               ) : (
                 <>
-                  {/* Chat History */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-gray-500">
-                        Comienza una conversación haciendo una consulta legal
-                      </div>
-                    ) : (
-                      <>
-                        {messages.map((msg, idx) => (
-                          <ChatMessage key={idx} message={msg} />
-                        ))}
-                        {isTyping && (
-                          <div className="flex items-center space-x-2 text-gray-500">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-sm font-medium text-blue-600">AI</span>
-                            </div>
-                            <div className="bg-gray-100 rounded-xl p-4">
-                              <div className="flex space-x-2">
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <div className="space-y-4">
+                      {messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center text-gray-500">
+                            <p>Comienza una conversación haciendo una consulta legal</p>
+                          </div>
+                        </div>
+                      ) : (
+                        messages.map((message, index) => (
+                          <div
+                            key={index}
+                            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                          >
+                            {message.role === 'assistant' && (
+                              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                <span className="text-sm font-medium text-blue-600">AI</span>
                               </div>
+                            )}
+                            <div
+                              className={`max-w-[75%] px-4 py-2 rounded-lg ${
+                                message.role === 'user'
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-100 text-gray-900'
+                              }`}
+                            >
+                              {message.content}
                             </div>
                           </div>
-                        )}
-                        {currentMessage && (
-                          <div className="flex items-center space-x-2">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-sm font-medium text-blue-600">AI</span>
-                            </div>
-                            <div className="bg-gray-100 rounded-xl p-4">
-                              <div className="prose prose-sm">
-                                {currentMessage}
-                              </div>
+                        ))
+                      )}
+                      {isTyping && (
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                            <span className="text-sm font-medium text-blue-600">AI</span>
+                          </div>
+                          <div className="bg-gray-100 rounded-lg px-4 py-2">
+                            <div className="flex space-x-2">
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
                             </div>
                           </div>
-                        )}
-                      </>
-                    )}
+                        </div>
+                      )}
+                      {currentMessage && (
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                            <span className="text-sm font-medium text-blue-600">AI</span>
+                          </div>
+                          <div className="bg-gray-100 rounded-lg px-4 py-2">
+                            {currentMessage}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div ref={chatEndRef} />
                   </div>
 
-                  {/* Input Area */}
                   <div className="border-t p-4">
                     <div className="flex space-x-4">
                       <input
@@ -357,13 +299,13 @@ onClick={() => router.push('/pricing')}
                           }
                         }}
                         placeholder="Escribe tu consulta legal aquí..."
-                        className="flex-1 px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={isTyping}
                       />
                       <button
                         onClick={handleSendMessage}
                         disabled={!inputMessage.trim() || isTyping}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         {isTyping ? 'Procesando...' : 'Enviar'}
                       </button>
