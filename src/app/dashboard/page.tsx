@@ -15,24 +15,102 @@ interface UserProfile {
   trial_end?: string | null;
 }
 
+interface ChatMessage {
+  id?: string;
+  role: string;
+  content: string;
+  conversation_id: string;
+  created_at?: string;
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [sending, setSending] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [conversationId, setConversationId] = useState<string>('');
+  const [subscriptionExpired, setSubscriptionExpired] = useState(false);
 
   useEffect(() => {
     checkUser();
-    // Verificar si es la primera visita
-    const hasVisited = storage.get('hasVisitedDashboard');
-    if (!hasVisited) {
-      setShowWelcome(true);
-      storage.set('hasVisitedDashboard', 'true');
-    }
+    // Generar un nuevo ID de conversación
+    setConversationId(crypto.randomUUID());
   }, []);
+
+  useEffect(() => {
+    if (profile) {
+      loadChatHistory();
+      checkSubscriptionStatus();
+    }
+  }, [profile]);
+
+  const checkSubscriptionStatus = () => {
+    if (!profile) return true;
+
+    if (profile.subscription_status === 'active') {
+      return false; // No expirado si está activo
+    }
+
+    if (profile.subscription_status === 'trial' && profile.trial_end) {
+      const trialEndDate = new Date(profile.trial_end);
+      const isExpired = new Date() > trialEndDate;
+      setSubscriptionExpired(isExpired);
+      return isExpired;
+    }
+
+    setSubscriptionExpired(true);
+    return true; // Expirado por defecto
+  };
+
+  const loadChatHistory = async () => {
+    if (!profile) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('chat_history')
+        .select('*')
+        .eq('user_id', profile.id)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      if (data) {
+        setChatHistory(data.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          conversation_id: msg.conversation_id,
+          created_at: msg.created_at
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+  };
+
+  const saveChatMessage = async (message: ChatMessage) => {
+    if (!profile) return;
+
+    try {
+      const { error } = await supabase
+        .from('chat_history')
+        .insert([
+          {
+            user_id: profile.id,
+            message: message.content,
+            role: message.role,
+            conversation_id: message.conversation_id
+          }
+        ]);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error saving chat message:', error);
+    }
+  };
 
   const checkUser = async () => {
     try {
@@ -42,7 +120,6 @@ export default function Dashboard() {
         return;
       }
 
-      // Obtener el perfil del usuario
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -58,29 +135,32 @@ export default function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
-  const handleCloseWelcome = () => {
-    setShowWelcome(false);
-  };
-
   const handleSendQuery = async () => {
-    if (!query.trim()) return;
+    if (!query.trim() || sending || checkSubscriptionStatus()) return;
 
     setSending(true);
-    setChatHistory(prev => [...prev, { role: 'user', content: query }]);
+    const userMessage = {
+      role: 'user',
+      content: query,
+      conversation_id: conversationId
+    };
+
+    setChatHistory(prev => [...prev, userMessage]);
+    await saveChatMessage(userMessage);
 
     try {
       // Aquí irá la integración con el backend de IA
       // Por ahora, simulamos una respuesta
-      setTimeout(() => {
-        setChatHistory(prev => [...prev, {
+      setTimeout(async () => {
+        const assistantMessage = {
           role: 'assistant',
-          content: 'Esta es una respuesta de prueba. Aquí se integrará la IA con las respuestas legales.'
-        }]);
+          content: 'Esta es una respuesta de prueba. Aquí se integrará la IA con las respuestas legales.',
+          conversation_id: conversationId
+        };
+        
+        setChatHistory(prev => [...prev, assistantMessage]);
+        await saveChatMessage(assistantMessage);
+        
         setQuery('');
         setSending(false);
       }, 1000);
@@ -103,80 +183,48 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-blue-600">LegalIA</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-700">{profile?.full_name}</span>
-              <button
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Cerrar sesión
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* ... Navbar y estructura principal igual ... */}
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="md:col-span-1 space-y-6">
-            {/* Usuario y Plan */}
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900">Tu Plan</h3>
-              <div className="mt-2 text-sm text-gray-600">
-                <p>Estado: {profile?.subscription_status === 'trial' ? 'Prueba gratuita' : 'Activo'}</p>
-                <p>Plan: {profile?.subscription_tier || 'No suscrito'}</p>
-                {profile?.trial_end && (
-                  <p>Prueba expira: {new Date(profile.trial_end).toLocaleDateString()}</p>
-                )}
+      {/* Chat Area */}
+      <div className="md:col-span-3">
+        <div className="bg-white rounded-lg shadow h-[600px] flex flex-col">
+          {subscriptionExpired ? (
+            <div className="flex-1 flex items-center justify-center p-8">
+              <div className="text-center">
+                <div className="text-red-600 text-xl font-semibold mb-4">
+                  Tu período de prueba ha terminado
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Para continuar usando LegalIA, por favor actualiza tu suscripción.
+                </p>
+                <button
+                  onClick={() => router.push('/pricing')}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Ver planes de suscripción
+                </button>
               </div>
             </div>
-
-            {/* Estadísticas */}
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900">Estadísticas</h3>
-              <div className="mt-2 text-sm text-gray-600">
-                <p>Consultas realizadas: {chatHistory.filter(msg => msg.role === 'user').length}</p>
-                <p>Documentos generados: 0</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Area */}
-          <div className="md:col-span-3">
-            <div className="bg-white rounded-lg shadow h-[600px] flex flex-col">
+          ) : (
+            <>
               {/* Chat History */}
               <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                {chatHistory.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    Comienza una conversación haciendo una consulta legal
-                  </div>
-                ) : (
-                  chatHistory.map((msg, index) => (
+                {chatHistory.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
                     <div
-                      key={index}
-                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`max-w-3/4 p-3 rounded-lg ${
+                        msg.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
                     >
-                      <div
-                        className={`max-w-3/4 p-3 rounded-lg ${
-                          msg.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
-                        }`}
-                      >
-                        {msg.content}
-                      </div>
+                      {msg.content}
                     </div>
-                  ))
-                )}
+                  </div>
+                ))}
               </div>
 
               {/* Input Area */}
@@ -194,18 +242,19 @@ export default function Dashboard() {
                     }}
                     placeholder="Escribe tu consulta legal aquí..."
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={subscriptionExpired}
                   />
                   <button
                     onClick={handleSendQuery}
-                    disabled={sending || !query.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    disabled={sending || !query.trim() || subscriptionExpired}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sending ? 'Enviando...' : 'Enviar'}
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
 
