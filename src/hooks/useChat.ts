@@ -92,5 +92,12 @@ export const useChat = (conversationId: string) => {
     sendMessage,
     isTyping,
     currentMessage
+    const N8N_WEBHOOK_URL = 'tu_url_de_webhook_n8n';
+
+// En la función sendMessage:
+socket.emit('send_message', {
+  ...message,
+  webhook_url: https://n8n-plataforma-n8n.zycucb.easypanel.host/webhook/f7aa295e-d35e-441b-80aa-5982d7b9430e
+
   };
 };
