@@ -6,6 +6,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   conversation_id: string;
+  created_at?: string;
 }
 
 export const useChat = (conversationId: string) => {
@@ -30,20 +31,17 @@ export const useChat = (conversationId: string) => {
       setIsTyping(typing);
     });
 
-    socket.on('receive_message_stream', ({ content, isComplete }) => {
+    socket.on('receive_message_stream', ({ content, isComplete }: { content: string; isComplete: boolean }) => {
       setCurrentMessage(content);
       if (isComplete) {
-        setMessages(prev => [...prev, {
+        const newMessage: Message = {
           role: 'assistant',
           content,
           conversation_id: conversationId
-        }]);
+        };
+        setMessages(prev => [...prev, newMessage]);
         setCurrentMessage('');
-        saveMessage({
-          role: 'assistant',
-          content,
-          conversation_id: conversationId
-        });
+        saveMessage(newMessage);
       }
     });
 
@@ -78,7 +76,7 @@ export const useChat = (conversationId: string) => {
   const sendMessage = useCallback((content: string) => {
     if (!socket || !content.trim()) return;
 
-    const message = {
+    const message: Message = {
       role: 'user',
       content,
       conversation_id: conversationId
