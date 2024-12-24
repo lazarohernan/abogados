@@ -1,8 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import io, { Socket } from 'socket.io-client';
 import { supabase } from '@/lib/supabase';
-
-const N8N_WEBHOOK_URL = 'https://n8n-plataforma-n8n.zycucb.easypanel.host/webhook/f7aa295e-d35e-441b-80aa-5982d7b9430e';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -11,74 +8,23 @@ interface Message {
   created_at?: string;
 }
 
-export const useChat = (conversationId: string) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+export const useChat = (conversationId: string, showWelcomePopup: boolean) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [currentMessage, setCurrentMessage] = useState('');
 
   useEffect(() => {
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001');
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && !showWelcomePopup) {
       const welcomeMessage: Message = {
         role: 'assistant',
-        content: '¡Bienvenido a LegalIA! Soy tu asistente legal especializado en leyes hondureñas. Estoy aquí para ayudarte con cualquier consulta sobre legislación, procedimientos legales y normativas vigentes en Honduras. ¿En qué puedo ayudarte hoy?',
+        content: '¡Bienvenido de nuevo! ¿En qué puedo ayudarte hoy?',
         conversation_id: conversationId,
         created_at: new Date().toISOString()
       };
       setMessages([welcomeMessage]);
       saveMessage(welcomeMessage);
     }
-  }, [conversationId]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on('assistant_typing', (typing: boolean) => {
-      setIsTyping(typing);
-    });
-
-    socket.on('receive_message_stream', ({ content, isComplete }: { content: string; isComplete: boolean }) => {
-      setCurrentMessage(content);
-      if (isComplete) {
-        const newMessage: Message = {
-          role: 'assistant',
-          content,
-          conversation_id: conversationId,
-          created_at: new Date().toISOString()
-        };
-        setMessages(prev => [...prev, newMessage]);
-        setCurrentMessage('');
-        saveMessage(newMessage);
-      }
-    });
-
-    socket.on('error', (error: string) => {
-      console.error('Socket error:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: 'Lo siento, ha ocurrido un error. Por favor, intenta de nuevo.',
-        conversation_id: conversationId,
-        created_at: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      saveMessage(errorMessage);
-    });
-
-    return () => {
-      socket.off('assistant_typing');
-      socket.off('receive_message_stream');
-      socket.off('error');
-    };
-  }, [socket, conversationId]);
+  }, [messages.length, conversationId, showWelcomePopup]);
 
   const saveMessage = async (message: Message) => {
     try {
@@ -101,24 +47,40 @@ export const useChat = (conversationId: string) => {
     }
   };
 
-  const sendMessage = useCallback((content: string) => {
-    if (!socket || !content.trim()) return;
+  const sendMessage = useCallback(async (content: string) => {
+    if (!content.trim()) return;
 
-    const message: Message = {
+    const userMessage: Message = {
       role: 'user',
       content,
       conversation_id: conversationId,
       created_at: new Date().toISOString()
     };
 
-    setMessages(prev => [...prev, message]);
-    saveMessage(message);
-    
-    socket.emit('send_message', {
-      ...message,
-      webhook_url: N8N_WEBHOOK_URL
-    });
-  }, [socket, conversationId]);
+    setMessages(prev => [...prev, userMessage]);
+    await saveMessage(userMessage);
+    setIsTyping(true);
+
+    try {
+      // Simular respuesta del asistente
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: 'Esta es una respuesta simulada. Aquí se integrará la respuesta real del asistente.',
+        conversation_id: conversationId,
+        created_at: new Date().toISOString()
+      };
+
+      setTimeout(() => {
+        setMessages(prev => [...prev, assistantMessage]);
+        saveMessage(assistantMessage);
+        setIsTyping(false);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error:', error);
+      setIsTyping(false);
+    }
+  }, [conversationId]);
 
   const loadChatHistory = useCallback(async () => {
     try {
