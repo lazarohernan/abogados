@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import useChat from '@/hooks/useChat';
 
 interface ChatSectionProps {
   profile: any;
