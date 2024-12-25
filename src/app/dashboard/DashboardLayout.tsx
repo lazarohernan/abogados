@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+
+// Inicializa el cliente de Supabase
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -83,8 +90,8 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
           {/* Botón de cerrar sesión */}
           <div className="p-4 border-t">
             <button
-              onClick={() => {
-                supabase.auth.signOut();
+              onClick={async () => {
+                await supabase.auth.signOut();
                 router.push('/');
               }}
               className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
