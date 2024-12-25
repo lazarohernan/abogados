@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { storage } from '@/lib/storage';
-import WelcomePopup from '@/components/WelcomePopup';
+import DashboardLayout from './DashboardLayout';
+import ChatSection from './ChatSection';
 
 interface UserProfile {
   id: string;
@@ -19,19 +19,12 @@ export default function Dashboard() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
-  const [sending, setSending] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [inputMessage, setInputMessage] = useState('');
+  const [messages, setMessages] = useState<Array<{ role: string; content: string; created_at?: string }>>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     checkUser();
-    // Verificar si es la primera visita
-    const hasVisited = storage.get('hasVisitedDashboard');
-    if (!hasVisited) {
-      setShowWelcome(true);
-      storage.set('hasVisitedDashboard', 'true');
-    }
   }, []);
 
   const checkUser = async () => {
@@ -42,7 +35,6 @@ export default function Dashboard() {
         return;
       }
 
-      // Obtener el perfil del usuario
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -58,166 +50,54 @@ export default function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isTyping) return;
 
-  const handleCloseWelcome = () => {
-    setShowWelcome(false);
-  };
+    const newMessage = {
+      role: 'user',
+      content: inputMessage,
+      created_at: new Date().toISOString()
+    };
 
-  const handleSendQuery = async () => {
-    if (!query.trim()) return;
-
-    setSending(true);
-    setChatHistory(prev => [...prev, { role: 'user', content: query }]);
+    setMessages(prev => [...prev, newMessage]);
+    setInputMessage('');
+    setIsTyping(true);
 
     try {
-      // Aquí irá la integración con el backend de IA
-      // Por ahora, simulamos una respuesta
+      // Simular respuesta de la IA
       setTimeout(() => {
-        setChatHistory(prev => [...prev, {
+        setMessages(prev => [...prev, {
           role: 'assistant',
-          content: 'Esta es una respuesta de prueba. Aquí se integrará la IA con las respuestas legales.'
+          content: 'Esta es una respuesta de prueba. Aquí se integrará la IA con las respuestas legales.',
+          created_at: new Date().toISOString()
         }]);
-        setQuery('');
-        setSending(false);
+        setIsTyping(false);
       }, 1000);
     } catch (error) {
       console.error('Error:', error);
-      setSending(false);
+      setIsTyping(false);
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
-        </div>
+        <div className="text-center">Cargando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-blue-600">LegalIA</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-700">{profile?.full_name}</span>
-              <button
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Cerrar sesión
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="md:col-span-1 space-y-6">
-            {/* Usuario y Plan */}
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900">Tu Plan</h3>
-              <div className="mt-2 text-sm text-gray-600">
-                <p>Estado: {profile?.subscription_status === 'trial' ? 'Prueba gratuita' : 'Activo'}</p>
-                <p>Plan: {profile?.subscription_tier || 'No suscrito'}</p>
-                {profile?.trial_end && (
-                  <p>Prueba expira: {new Date(profile.trial_end).toLocaleDateString()}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Estadísticas */}
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900">Estadísticas</h3>
-              <div className="mt-2 text-sm text-gray-600">
-                <p>Consultas realizadas: {chatHistory.filter(msg => msg.role === 'user').length}</p>
-                <p>Documentos generados: 0</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Area */}
-          <div className="md:col-span-3">
-            <div className="bg-white rounded-lg shadow h-[600px] flex flex-col">
-              {/* Chat History */}
-              <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                {chatHistory.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    Comienza una conversación haciendo una consulta legal
-                  </div>
-                ) : (
-                  chatHistory.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-3/4 p-3 rounded-lg ${
-                          msg.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
-                        }`}
-                      >
-                        {msg.content}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Input Area */}
-              <div className="border-t p-4">
-                <div className="flex space-x-4">
-                  <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendQuery();
-                      }
-                    }}
-                    placeholder="Escribe tu consulta legal aquí..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    onClick={handleSendQuery}
-                    disabled={sending || !query.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                  >
-                    {sending ? 'Enviando...' : 'Enviar'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Welcome Popup */}
-      {showWelcome && profile && (
-        <WelcomePopup
-          userName={profile.full_name}
-          subscriptionStatus={profile.subscription_status}
-          trialEnd={profile.trial_end}
-          onClose={handleCloseWelcome}
-        />
-      )}
-    </div>
+    <DashboardLayout profile={profile} activeSection="chat">
+      <ChatSection
+        profile={profile}
+        messages={messages}
+        isTyping={isTyping}
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        handleSendMessage={handleSendMessage}
+        subscriptionStatus={profile?.subscription_status || 'inactive'}
+      />
+    </DashboardLayout>
   );
 }
