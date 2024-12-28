@@ -22,17 +22,32 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data } = await supabase.auth.getUser();
-      const user = data?.user;
+      const { data, error } = await supabase.auth.getUser();
 
-      if (user) {
-        const { data: profileData, error } = await supabase
+      if (error) {
+        console.error('Error obteniendo usuario:', error.message);
+        setLoading(false);
+        return;
+      }
+
+      const user = data?.user;
+      if (user?.id) {
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
 
-        if (!error) setProfile({ full_name: profileData.full_name, email: profileData.email });
+        if (!profileError) {
+          setProfile({
+            full_name: profileData.full_name,
+            email: profileData.email,
+          });
+        } else {
+          console.error('Error obteniendo perfil:', profileError.message);
+        }
+      } else {
+        console.warn('Usuario no autenticado');
       }
 
       setLoading(false);
