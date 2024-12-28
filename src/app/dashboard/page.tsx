@@ -15,7 +15,7 @@ interface UserProfile {
   trial_end?: string | null;
 }
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,19 +35,15 @@ export default function Dashboard() {
         return;
       }
 
-      const { data: profile, error } = await supabase
+      const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error) {
-        console.error('Error al obtener el perfil:', error.message);
-        setProfile(null);
-        return;
-      }
+      if (error) throw error;
 
-      setProfile(profile);
+      setProfile(profileData);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -61,7 +57,7 @@ export default function Dashboard() {
     const newMessage = {
       role: 'user',
       content: inputMessage,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
 
     setMessages(prev => [...prev, newMessage]);
@@ -69,26 +65,22 @@ export default function Dashboard() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: inputMessage })
-      });
-      const data = await response.json();
-
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: data.response,
-        created_at: new Date().toISOString()
-      }]);
+      // Simulación de respuesta de IA
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'Esta es una respuesta simulada. Aquí se conectará la IA.',
+          created_at: new Date().toISOString(),
+        }]);
+        setIsTyping(false);
+      }, 1000);
     } catch (error) {
-      console.error('Error al obtener respuesta:', error);
-    } finally {
+      console.error('Error:', error);
       setIsTyping(false);
     }
   };
 
-  if (loading) {
+  if (loading || !profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">Cargando...</div>
