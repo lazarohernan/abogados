@@ -2,8 +2,8 @@
   "name": "chat-platform",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": "18.x"
+ "engines": {
+  "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",
