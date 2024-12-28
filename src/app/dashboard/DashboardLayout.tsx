@@ -4,15 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
-import WelcomePopup from '@/components/WelcomePopup';
-
-export default function DashboardLayout({ children }) {
-  return (
-    <>
-      <WelcomePopup />
-      <div>{children}</div>
-    </>
-  );
+import WelcomePopup from '@/components/WelcomePopup'; // Importación del WelcomePopup
 
 // Inicializa el cliente de Supabase
 const supabase = createClient(
@@ -114,6 +106,8 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
 
       {/* Contenido principal */}
       <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Popup de bienvenida */}
+        <WelcomePopup />
         {/* Toggle sidebar en móvil */}
         <button
           className="lg:hidden fixed bottom-4 right-4 z-40 bg-blue-600 text-white p-3 rounded-full shadow-lg"
