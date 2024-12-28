@@ -22,35 +22,42 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data, error } = await supabase.auth.getUser();
+      try {
+        const { data: userResponse, error: userError } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error('Error obteniendo usuario:', error.message);
-        setLoading(false);
-        return;
-      }
+        if (userError) {
+          console.error('Error obteniendo usuario:', userError.message);
+          setLoading(false);
+          return;
+        }
 
-      const user = data?.user;
-      if (user?.id) {
+        const user = userResponse?.user;
+
+        if (!user || !user.id) {
+          console.warn('Usuario no autenticado o sin ID');
+          setLoading(false);
+          return;
+        }
+
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
 
-        if (!profileError) {
+        if (profileError) {
+          console.error('Error obteniendo perfil:', profileError.message);
+        } else {
           setProfile({
             full_name: profileData.full_name,
             email: profileData.email,
           });
-        } else {
-          console.error('Error obteniendo perfil:', profileError.message);
         }
-      } else {
-        console.warn('Usuario no autenticado');
+      } catch (error) {
+        console.error('Error inesperado:', error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchProfile();
