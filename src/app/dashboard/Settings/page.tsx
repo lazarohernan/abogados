@@ -36,7 +36,11 @@ export default function SettingsPage() {
 
       setSuccessMessage('Configuración actualizada exitosamente.');
     } catch (error) {
-      setErrorMessage(error.message || 'Error al actualizar la configuración.');
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Error al actualizar la configuración.');
+      }
     } finally {
       setLoading(false);
     }
