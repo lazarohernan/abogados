@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { ReactNode } from 'react';
 
 interface DashboardLayoutProps {
@@ -14,17 +15,19 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, profile }: DashboardLayoutProps) {
-  const router = useRouter();
+  const pathname = usePathname();
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' }); // Ajusta según tu lógica de cierre de sesión
-    router.push('/login');
-  };
+  const menuItems = [
+    { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard' },
+    { id: 'history', label: 'Historial', icon: '📚', href: '/dashboard/history' },
+    { id: 'settings', label: 'Configuración', icon: '⚙️', href: '/dashboard/settings' },
+    { id: 'subscription', label: 'Suscripción', icon: '💳', href: '/dashboard/subscription' },
+  ];
 
   return (
-    <div className="h-screen flex">
-      {/* Sidebar izquierdo */}
-      <aside className="w-64 bg-gray-100 border-r shadow-md">
+    <div className="h-screen flex bg-gray-100">
+      {/* Menú lateral izquierdo */}
+      <aside className="w-64 bg-white border-r shadow-md">
         <div className="p-4 border-b">
           <h2 className="text-2xl font-bold text-blue-600">LegalIA</h2>
         </div>
@@ -44,8 +47,26 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
           </div>
         </div>
 
+        {/* Menú de navegación */}
+        <nav className="p-4 space-y-2">
+          {menuItems.map((item) => (
+            <Link key={item.id} href={item.href}>
+              <a
+                className={`flex items-center px-4 py-2 rounded-md transition ${
+                  pathname === item.href
+                    ? 'bg-blue-50 text-blue-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <span className="mr-3">{item.icon}</span>
+                <span>{item.label}</span>
+              </a>
+            </Link>
+          ))}
+        </nav>
+
         {/* Estado de la suscripción */}
-        <div className="p-4 border-b bg-gray-50">
+        <div className="p-4 border-t bg-gray-50">
           <p className="text-sm text-gray-600">
             Suscripción: <span className="font-medium">{profile.subscription_status}</span>
           </p>
@@ -59,7 +80,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
         {/* Botón de cerrar sesión */}
         <div className="p-4">
           <button
-            onClick={handleLogout}
+            onClick={() => console.log('Cerrar sesión')}
             className="text-red-600 text-sm hover:underline"
           >
             Cerrar sesión
@@ -68,28 +89,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1 flex flex-col">
-        {children}
-      </main>
-
-      {/* Sidebar derecho */}
-      <aside className="w-64 bg-gray-50 border-l shadow-md">
-        <div className="p-4">
-          <h3 className="text-lg font-semibold">Opciones adicionales</h3>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <button className="w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-200">
-                Ayuda
-              </button>
-            </li>
-            <li>
-              <button className="w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-200">
-                Configuración avanzada
-              </button>
-            </li>
-          </ul>
-        </div>
-      </aside>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }
