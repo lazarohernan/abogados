@@ -7,6 +7,8 @@ import ChatSection from './ChatSection';
 interface UserProfile {
   full_name: string;
   email: string;
+  subscription_status: 'trial' | 'active' | 'inactive';
+  trial_end?: string | null;
 }
 
 interface Message {
@@ -19,6 +21,8 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -51,6 +55,8 @@ export default function DashboardPage() {
           setProfile({
             full_name: profileData.full_name,
             email: profileData.email,
+            subscription_status: profileData.subscription_status,
+            trial_end: profileData.trial_end,
           });
         }
       } catch (error) {
@@ -62,6 +68,31 @@ export default function DashboardPage() {
 
     fetchProfile();
   }, []);
+
+  const handleSendMessage = () => {
+    if (!inputMessage.trim() || isTyping) return;
+
+    const newMessage = {
+      role: 'user',
+      content: inputMessage,
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, newMessage]);
+    setInputMessage('');
+    setIsTyping(true);
+
+    // Simulación de la respuesta de la IA
+    setTimeout(() => {
+      const responseMessage = {
+        role: 'assistant',
+        content: 'Esta es una respuesta simulada. Aquí se conectará la IA.',
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, responseMessage]);
+      setIsTyping(false);
+    }, 1000);
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
@@ -76,11 +107,12 @@ export default function DashboardPage() {
       profile={profile}
       messages={messages}
       setMessages={setMessages}
-      isTyping={false}
-      inputMessage=""
-      setInputMessage={() => {}}
-      handleSendMessage={() => {}}
-      subscriptionStatus="active"
+      isTyping={isTyping}
+      inputMessage={inputMessage}
+      setInputMessage={setInputMessage}
+      handleSendMessage={handleSendMessage}
+      subscriptionStatus={profile.subscription_status}
+      trialEnd={profile.trial_end}
     />
   );
 }
