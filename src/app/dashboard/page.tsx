@@ -72,24 +72,24 @@ export default function DashboardPage() {
   const handleSendMessage = () => {
     if (!inputMessage.trim() || isTyping) return;
 
-    const newMessage = {
+    const newMessage: Message = {
       role: 'user',
       content: inputMessage,
       created_at: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev: Message[]) => [...prev, newMessage]);
     setInputMessage('');
     setIsTyping(true);
 
     // Simulación de la respuesta de la IA
     setTimeout(() => {
-      const responseMessage = {
+      const responseMessage: Message = {
         role: 'assistant',
         content: 'Esta es una respuesta simulada. Aquí se conectará la IA.',
         created_at: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, responseMessage]);
+      setMessages((prev: Message[]) => [...prev, responseMessage]);
       setIsTyping(false);
     }, 1000);
   };
