@@ -1,6 +1,3 @@
-// Component: WelcomePopup
-// Description: Popup that shows up on the user's first login.
-
 import { useEffect, useState } from "react";
 import { storage } from "@/lib/storage";
 
@@ -8,7 +5,7 @@ export default function WelcomePopup() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const hasSeenWelcome = storage.get("hasSeenWelcome");
+    const hasSeenWelcome = storage.get("hasSeenWelcome") === "true";
 
     if (!hasSeenWelcome) {
       setIsVisible(true);
@@ -16,7 +13,7 @@ export default function WelcomePopup() {
   }, []);
 
   const handleClose = () => {
-    storage.set("hasSeenWelcome", true);
+    storage.set("hasSeenWelcome", "true"); // Convertimos el booleano a string
     setIsVisible(false);
   };
 
