@@ -3,14 +3,18 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  profile: { full_name: string; email: string };
+  activeSection?: string; // Incluye activeSection como una propiedad opcional
+}
+
 export default function DashboardLayout({
   children,
   profile,
-}: {
-  children: React.ReactNode;
-  profile: { full_name: string; email: string };
-}) {
-  const pathname = usePathname(); // Detecta la ruta actual para resaltar el menú activo
+  activeSection,
+}: DashboardLayoutProps) {
+  const pathname = usePathname();
 
   const menuItems = [
     { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard' },
@@ -48,7 +52,7 @@ export default function DashboardLayout({
             <Link key={item.id} href={item.href}>
               <a
                 className={`flex items-center px-4 py-2 rounded-md transition ${
-                  pathname === item.href
+                  pathname === item.href || activeSection === item.id
                     ? 'bg-blue-50 text-blue-600 font-semibold'
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
