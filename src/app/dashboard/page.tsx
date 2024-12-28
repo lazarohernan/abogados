@@ -41,7 +41,12 @@ export default function Dashboard() {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error al obtener el perfil:', error.message);
+        setProfile(null);
+        return;
+      }
+
       setProfile(profile);
     } catch (error) {
       console.error('Error:', error);
@@ -64,17 +69,21 @@ export default function Dashboard() {
     setIsTyping(true);
 
     try {
-      // Simular respuesta de la IA
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: 'Esta es una respuesta de prueba. Aquí se integrará la IA con las respuestas legales.',
-          created_at: new Date().toISOString()
-        }]);
-        setIsTyping(false);
-      }, 1000);
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: inputMessage })
+      });
+      const data = await response.json();
+
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: data.response,
+        created_at: new Date().toISOString()
+      }]);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error al obtener respuesta:', error);
+    } finally {
       setIsTyping(false);
     }
   };
