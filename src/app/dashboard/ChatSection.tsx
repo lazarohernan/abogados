@@ -1,11 +1,23 @@
-export default function ChatSection({ profile, messages, setMessages }) {
+interface ChatSectionProps {
+  profile: {
+    full_name: string;
+    email: string;
+  };
+  messages: Array<{ role: string; content: string }>;
+  setMessages: (messages: Array<{ role: string; content: string }>) => void;
+}
+
+export default function ChatSection({ profile, messages, setMessages }: ChatSectionProps) {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-bold">Bienvenido, {profile?.full_name}</h1>
       {/* Renderiza los mensajes */}
       <div className="space-y-2">
         {messages.map((msg, index) => (
-          <div key={index} className={`p-2 rounded ${msg.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+          <div
+            key={index}
+            className={`p-2 rounded ${msg.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}`}
+          >
             {msg.content}
           </div>
         ))}
