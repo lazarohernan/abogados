@@ -22,12 +22,12 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const menuItems = [
-    { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard' },
-    { id: 'history', label: 'Historial', icon: '📚', href: '/dashboard/history' },
-    { id: 'settings', label: 'Configuración', icon: '⚙️', href: '/dashboard/settings' },
-    { id: 'subscription', label: 'Suscripción', icon: '💳', href: '/dashboard/subscription' }
-  ];
+const menuItems = [
+  { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard' },
+  { id: 'history', label: 'Historial', icon: '📚', href: '/dashboard/history' },
+  { id: 'settings', label: 'Configuración', icon: '⚙️', href: '/dashboard/settings' }, // Aquí está el enlace a Settings
+  { id: 'subscription', label: 'Suscripción', icon: '💳', href: '/dashboard/subscription' }
+];
 
   return (
     <div className="h-screen flex bg-gray-50">
