@@ -4,6 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
+import WelcomePopup from '@/components/WelcomePopup';
+
+export default function DashboardLayout({ children }) {
+  return (
+    <>
+      <WelcomePopup />
+      <div>{children}</div>
+    </>
+  );
 
 // Inicializa el cliente de Supabase
 const supabase = createClient(
