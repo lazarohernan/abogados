@@ -23,7 +23,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
 
   return (
     <div className="h-screen flex">
-      {/* Sidebar */}
+      {/* Sidebar izquierdo */}
       <aside className="w-64 bg-gray-100 border-r shadow-md">
         <div className="p-4 border-b">
           <h2 className="text-2xl font-bold text-blue-600">LegalIA</h2>
@@ -68,7 +68,28 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+
+      {/* Sidebar derecho */}
+      <aside className="w-64 bg-gray-50 border-l shadow-md">
+        <div className="p-4">
+          <h3 className="text-lg font-semibold">Opciones adicionales</h3>
+          <ul className="mt-4 space-y-2">
+            <li>
+              <button className="w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-200">
+                Ayuda
+              </button>
+            </li>
+            <li>
+              <button className="w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-200">
+                Configuración avanzada
+              </button>
+            </li>
+          </ul>
+        </div>
+      </aside>
     </div>
   );
 }
