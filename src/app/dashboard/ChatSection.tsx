@@ -2,51 +2,84 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import ChatSection from './ChatSection';
 
-export default function DashboardPage() {
-  const [profile, setProfile] = useState<{ full_name: string; email: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [messages, setMessages] = useState<
-    { role: 'user' | 'assistant'; content: string; created_at?: string }[]
-  >([]);
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  created_at?: string;
+}
 
+interface UserProfile {
+  full_name: string;
+  email: string;
+}
+
+interface ChatSectionProps {
+  profile: UserProfile;
+  messages: Message[];
+  setMessages: (messages: Message[]) => void;
+  isTyping: boolean;
+  inputMessage: string;
+  setInputMessage: (message: string) => void;
+  handleSendMessage: () => void;
+  subscriptionStatus: string;
+}
+
+export default function ChatSection({
+  profile,
+  messages,
+  setMessages,
+  isTyping,
+  inputMessage,
+  setInputMessage,
+  handleSendMessage,
+  subscriptionStatus,
+}: ChatSectionProps) {
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profileData, error } = await supabase
+      try {
+        const { data: userResponse, error: userError } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.error('Error obteniendo usuario:', userError.message);
+          return;
+        }
+
+        const user = userResponse?.user;
+
+        if (!user || !user.id) {
+          console.warn('Usuario no autenticado o sin ID');
+          return;
+        }
+
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
 
-        if (!error) setProfile({ full_name: profileData.full_name, email: profileData.email });
+        if (profileError) {
+          console.error('Error obteniendo perfil:', profileError.message);
+        } else {
+          console.log('Perfil cargado correctamente:', profileData);
+        }
+      } catch (error) {
+        console.error('Error inesperado:', error);
       }
-      setLoading(false);
     };
 
     fetchProfile();
   }, []);
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
-  }
-
-  if (!profile) {
-    return <div className="min-h-screen flex items-center justify-center">Perfil no encontrado</div>;
-  }
-
   return (
-    <ChatSection
-      profile={profile}
-      messages={messages}
-      setMessages={setMessages}
-      isTyping={false}
-      inputMessage=""
-      setInputMessage={() => {}}
-      handleSendMessage={() => {}}
-      subscriptionStatus="active"
-    />
+    <div className="p-4">
+      <h1>Bienvenido, {profile.full_name}</h1>
+      {/* Renderiza mensajes */}
+      {messages.map((msg, index) => (
+        <div key={index}>
+          <strong>{msg.role === 'user' ? 'Tú' : 'IA'}:</strong> {msg.content}
+        </div>
+      ))}
+    </div>
   );
 }
