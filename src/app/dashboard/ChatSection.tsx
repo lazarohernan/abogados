@@ -8,17 +8,21 @@ interface Message {
   created_at?: string;
 }
 
+interface UserProfile {
+  full_name: string;
+  email: string;
+}
+
 interface ChatSectionProps {
-  profile: {
-    full_name: string;
-    email: string;
-  };
+  profile: UserProfile;
   messages: Message[];
   setMessages: (messages: Message[]) => void;
   isTyping: boolean;
   inputMessage: string;
   setInputMessage: (message: string) => void;
   handleSendMessage: () => void;
+  subscriptionStatus: 'trial' | 'active' | 'inactive'; // Nueva propiedad
+  trialEnd?: string | null; // Nueva propiedad
 }
 
 export default function ChatSection({
@@ -29,6 +33,8 @@ export default function ChatSection({
   inputMessage,
   setInputMessage,
   handleSendMessage,
+  subscriptionStatus,
+  trialEnd,
 }: ChatSectionProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
