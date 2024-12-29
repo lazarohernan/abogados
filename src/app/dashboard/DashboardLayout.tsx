@@ -25,9 +25,9 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
   ];
 
   return (
-    <div className="h-screen flex bg-gray-100">
+    <div className="h-screen flex flex-col lg:flex-row">
       {/* Menú lateral izquierdo */}
-      <aside className="w-64 bg-white border-r shadow-md">
+      <aside className="w-full lg:w-64 bg-white border-r shadow-md flex flex-col">
         <div className="p-4 border-b">
           <h2 className="text-2xl font-bold text-blue-600">LegalIA</h2>
         </div>
@@ -48,7 +48,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
         </div>
 
         {/* Menú de navegación */}
-        <nav className="p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => (
             <Link key={item.id} href={item.href}>
               <a
@@ -65,8 +65,8 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
           ))}
         </nav>
 
-        {/* Estado de la suscripción */}
-        <div className="p-4 border-t bg-gray-50">
+        {/* Estado de suscripción y botón de cerrar sesión */}
+        <div className="p-4 border-t mt-auto bg-gray-50">
           <p className="text-sm text-gray-600">
             Suscripción: <span className="font-medium">{profile.subscription_status}</span>
           </p>
@@ -75,13 +75,9 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
               Vence: {new Date(profile.trial_end).toLocaleDateString()}
             </p>
           )}
-        </div>
-
-        {/* Botón de cerrar sesión */}
-        <div className="p-4">
           <button
             onClick={() => console.log('Cerrar sesión')}
-            className="text-red-600 text-sm hover:underline"
+            className="text-red-600 text-sm hover:underline mt-4"
           >
             Cerrar sesión
           </button>
@@ -89,7 +85,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 flex flex-col overflow-hidden">{children}</main>
     </div>
   );
 }
