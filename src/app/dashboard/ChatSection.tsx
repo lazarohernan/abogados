@@ -8,17 +8,21 @@ interface Message {
   created_at?: string;
 }
 
+interface UserProfile {
+  full_name: string;
+  email: string;
+}
+
 interface ChatSectionProps {
-  profile: {
-    full_name: string;
-    email: string;
-  };
+  profile: UserProfile;
   messages: Message[];
   setMessages: (messages: Message[]) => void;
   isTyping: boolean;
   inputMessage: string;
   setInputMessage: (message: string) => void;
   handleSendMessage: () => void;
+  subscriptionStatus: 'trial' | 'active' | 'inactive';
+  trialEnd?: string | null;
 }
 
 export default function ChatSection({
@@ -29,6 +33,8 @@ export default function ChatSection({
   inputMessage,
   setInputMessage,
   handleSendMessage,
+  subscriptionStatus,
+  trialEnd,
 }: ChatSectionProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +79,18 @@ export default function ChatSection({
           </div>
         )}
         <div ref={chatEndRef} />
+      </div>
+
+      {/* Información de suscripción */}
+      <div className="p-4 border-t bg-gray-50">
+        <p className="text-sm text-gray-600">
+          Suscripción: <span className="font-medium">{subscriptionStatus}</span>
+        </p>
+        {trialEnd && (
+          <p className="text-sm text-gray-600">
+            Vence: {new Date(trialEnd).toLocaleDateString()}
+          </p>
+        )}
       </div>
 
       {/* Entrada de chat */}
