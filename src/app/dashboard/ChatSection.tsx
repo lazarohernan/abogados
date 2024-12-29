@@ -21,8 +21,8 @@ interface ChatSectionProps {
   inputMessage: string;
   setInputMessage: (message: string) => void;
   handleSendMessage: () => void;
-  subscriptionStatus: 'trial' | 'active' | 'inactive';
-  trialEnd?: string | null;
+  subscriptionStatus: 'trial' | 'active' | 'inactive'; // Asegurar esta propiedad
+  trialEnd?: string | null; // Asegurar esta propiedad
 }
 
 export default function ChatSection({
