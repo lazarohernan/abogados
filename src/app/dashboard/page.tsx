@@ -37,7 +37,7 @@ export default function DashboardPage() {
     if (!inputMessage.trim()) return;
 
     const newMessage: Message = {
-      role: 'user', // Asegúrate de que el valor sea correcto según la interfaz
+      role: 'user',
       content: inputMessage,
       created_at: new Date().toISOString(),
     };
@@ -48,7 +48,7 @@ export default function DashboardPage() {
 
     setTimeout(() => {
       const assistantMessage: Message = {
-        role: 'assistant', // Asegúrate de que el valor sea correcto según la interfaz
+        role: 'assistant',
         content: 'Esta es una respuesta de prueba.',
         created_at: new Date().toISOString(),
       };
