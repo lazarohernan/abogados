@@ -1,108 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { useState } from 'react';
 import DashboardLayout from './dashboard/DashboardLayout'; // Ruta corregida
 import ChatSection from './dashboard/ChatSection'; // Ruta corregida
 
-interface UserProfile {
-  id: string;
-  full_name: string;
-  email: string;
-  subscription_status: 'trial' | 'active' | 'inactive';
-  subscription_tier?: 'monthly' | 'yearly' | null;
-  trial_end?: string | null;
-}
-
-export default function Dashboard() {
-  const router = useRouter();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [inputMessage, setInputMessage] = useState('');
-  const [messages, setMessages] = useState<Array<{ role: string; content: string; created_at?: string }>>([]);
+export default function Page() {
+  const [messages, setMessages] = useState<any[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [inputMessage, setInputMessage] = useState('');
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error al obtener el perfil:', error.message);
-        setProfile(null);
-        return;
-      }
-
-      setProfile(profile);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
+  const handleSendMessage = () => {
+    if (inputMessage.trim()) {
+      setMessages((prev) => [...prev, { role: 'user', content: inputMessage }]);
+      setInputMessage('');
+      setIsTyping(true);
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { role: 'assistant', content: 'Respuesta del asistente' }]);
+        setIsTyping(false);
+      }, 1000);
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isTyping) return;
-
-    const newMessage = {
-      role: 'user',
-      content: inputMessage,
-      created_at: new Date().toISOString()
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    setInputMessage('');
-    setIsTyping(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: inputMessage })
-      });
-      const data = await response.json();
-
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: data.response,
-        created_at: new Date().toISOString()
-      }]);
-    } catch (error) {
-      console.error('Error al obtener respuesta:', error);
-    } finally {
-      setIsTyping(false);
-    }
+  const profile = {
+    full_name: 'Usuario de Prueba',
+    email: 'usuario@ejemplo.com',
+    subscription_status: 'active',
+    trial_end: '2023-12-31',
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">Cargando...</div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">No se pudo cargar el perfil del usuario.</div>
-      </div>
-    );
-  }
 
   return (
     <DashboardLayout profile={profile} activeSection="chat">
@@ -113,7 +37,8 @@ export default function Dashboard() {
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
         handleSendMessage={handleSendMessage}
-        subscriptionStatus={profile?.subscription_status || 'inactive'}
+        subscriptionStatus={profile.subscription_status}
+        trialEnd={profile.trial_end || undefined}
       />
     </DashboardLayout>
   );
