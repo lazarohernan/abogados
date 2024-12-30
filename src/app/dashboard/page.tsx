@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DashboardLayout from './dashboard/DashboardLayout';
-import ChatSection from './dashboard/ChatSection';
+import DashboardLayout from './DashboardLayout'; // Ruta corregida
+import ChatSection from './ChatSection'; // Ruta corregida
 
 interface UserProfile {
   full_name: string;
