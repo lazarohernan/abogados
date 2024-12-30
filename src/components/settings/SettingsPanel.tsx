@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UserProfile from '@/types/profile'; // Importa el tipo UserProfile
@@ -15,16 +17,23 @@ export function SettingsPanel({ profile }: { profile: UserProfile }) {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      const { error } = await fetch('/api/update-profile', {
+      const response = await fetch('/api/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar el perfil');
+      }
+
+      const data = await response.json();
+      console.log('Perfil actualizado:', data);
       router.refresh();
     } catch (error) {
       console.error(error);
+      alert(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
