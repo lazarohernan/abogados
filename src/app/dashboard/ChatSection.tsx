@@ -2,30 +2,27 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useChat from '@/hooks/useChat';
 
 interface ChatSectionProps {
   profile: any;
   messages: any[];
-  setMessages: React.Dispatch<React.SetStateAction<any[]>>; // Agregar esta línea
   isTyping: boolean;
   inputMessage: string;
   setInputMessage: (message: string) => void;
   handleSendMessage: () => void;
   subscriptionStatus: string;
-  trialEnd?: string; // Opcional
+  trialEnd?: string | null;
 }
 
 export default function ChatSection({
   profile,
   messages,
-  setMessages, // Agregar esta línea
   isTyping,
   inputMessage,
   setInputMessage,
   handleSendMessage,
   subscriptionStatus,
-  trialEnd // Opcional
+  trialEnd
 }: ChatSectionProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -68,7 +65,6 @@ export default function ChatSection({
 
   return (
     <div className="flex-1 flex flex-col bg-white">
-      {/* Área de chat */}
       <div className="flex-1 overflow-y-auto p-4" onScroll={handleScroll}>
         <div className="space-y-4">
           {messages.map((message, index) => (
@@ -121,8 +117,6 @@ export default function ChatSection({
           <div ref={chatEndRef} />
         </div>
       </div>
-
-      {/* Área de entrada */}
       <div className="border-t p-4">
         <div className="flex space-x-4">
           <textarea
