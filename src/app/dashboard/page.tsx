@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile>({
     full_name: 'Usuario Prueba',
     email: 'usuario@ejemplo.com',
-    subscription_status: 'active', // Debe coincidir con el tipo
+    subscription_status: 'active', // Valor inicial válido
     trial_end: '2023-12-31',
   });
 
@@ -40,12 +40,24 @@ export default function DashboardPage() {
         setInputMessage={setInputMessage}
         handleSendMessage={() => {
           if (inputMessage.trim()) {
-            const newMessage: Message = { role: 'user', content: inputMessage, created_at: new Date().toISOString() };
+            const newMessage: Message = {
+              role: 'user',
+              content: inputMessage,
+              created_at: new Date().toISOString(),
+            };
+
             setMessages((prev) => [...prev, newMessage]);
             setInputMessage('');
             setIsTyping(true);
+
+            // Simulación de respuesta del asistente
             setTimeout(() => {
-              const responseMessage: Message = { role: 'assistant', content: 'Respuesta simulada', created_at: new Date().toISOString() };
+              const responseMessage: Message = {
+                role: 'assistant',
+                content: 'Esta es una respuesta simulada.',
+                created_at: new Date().toISOString(),
+              };
+
               setMessages((prev) => [...prev, responseMessage]);
               setIsTyping(false);
             }, 1000);
