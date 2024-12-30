@@ -2,7 +2,6 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -31,14 +30,15 @@ export default function ChatSection({
   subscriptionStatus
 }: ChatSectionProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   useEffect(() => {
-    if (isAtBottom && chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    const chatEnd = chatEndRef.current;
+    if (chatEnd) {
+      chatEnd.scrollIntoView({ behavior: 'smooth' });
+      setIsAtBottom(chatEnd.scrollTop + chatEnd.clientHeight === chatEnd.scrollHeight);
     }
-  }, [messages, isAtBottom]);
+  }, [messages]);
 
   // Rest of the component remains the same...
 }
