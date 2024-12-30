@@ -1,4 +1,3 @@
-// DashboardLayout.tsx
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -7,18 +6,17 @@ import Link from 'next/link';
 interface UserProfile {
   full_name: string;
   email: string;
-  subscription_status: 'trial' | 'active' | 'inactive'; // Asegura consistencia en los tipos
+  subscription_status: 'trial' | 'active' | 'inactive';
   trial_end?: string | null;
 }
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   profile: UserProfile;
-  activeSection: 'chat' | 'history' | 'settings' | 'subscription';
 }
 
-export default function DashboardLayout({ children, profile, activeSection }: DashboardLayoutProps) {
-  const pathname = usePathname(); // Detecta la ruta actual
+export default function DashboardLayout({ children, profile }: DashboardLayoutProps) {
+  const pathname = usePathname();
 
   const menuItems = [
     { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard/chat' },
@@ -40,7 +38,7 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
               <Link key={item.id} href={item.href}>
                 <a
                   className={`flex items-center px-4 py-2 rounded-md transition ${
-                    activeSection === item.id
+                    pathname === item.href
                       ? 'bg-blue-50 text-blue-600 font-semibold'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
@@ -52,7 +50,6 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
             ))}
           </nav>
         </div>
-        {/* Estado de suscripción */}
         <div className="p-4 border-t bg-white">
           <div className="text-sm font-medium">Suscripción: {profile.subscription_status}</div>
           {profile.trial_end && (
@@ -68,9 +65,7 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {children}
-      </main>
+      <main className="flex-1 flex flex-col overflow-hidden">{children}</main>
     </div>
   );
 }
