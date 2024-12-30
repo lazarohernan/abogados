@@ -7,21 +7,25 @@ import useChat from '@/hooks/useChat';
 interface ChatSectionProps {
   profile: any;
   messages: any[];
+  setMessages: React.Dispatch<React.SetStateAction<any[]>>; // Agregar esta línea
   isTyping: boolean;
   inputMessage: string;
   setInputMessage: (message: string) => void;
   handleSendMessage: () => void;
   subscriptionStatus: string;
+  trialEnd?: string; // Opcional
 }
 
 export default function ChatSection({
   profile,
   messages,
+  setMessages, // Agregar esta línea
   isTyping,
   inputMessage,
   setInputMessage,
   handleSendMessage,
-  subscriptionStatus
+  subscriptionStatus,
+  trialEnd // Opcional
 }: ChatSectionProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
