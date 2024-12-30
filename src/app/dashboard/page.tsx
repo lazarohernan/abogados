@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import ChatSection from './ChatSection';
-import DashboardLayout from './DashboardLayout';
+import DashboardLayout from './dashboard/DashboardLayout';
+import ChatSection from './dashboard/ChatSection';
 
 interface UserProfile {
   full_name: string;
   email: string;
-  subscription_status: 'trial' | 'active' | 'inactive';
+  subscription_status: 'trial' | 'active' | 'inactive'; // Tipo estricto
   trial_end?: string | null;
 }
 
@@ -20,9 +19,9 @@ interface Message {
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile>({
-    full_name: 'Usuario',
+    full_name: 'Usuario de Prueba',
     email: 'usuario@ejemplo.com',
-    subscription_status: 'active', // Cambiar este valor para probar
+    subscription_status: 'active', // Valor inicial válido
     trial_end: '2023-12-31',
   });
 
@@ -31,18 +30,18 @@ export default function DashboardPage() {
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
-    // Aquí podrías cargar datos dinámicos desde Supabase o cualquier API.
-    // Asegúrate de mapear `subscription_status` a los valores permitidos.
+    // Simulación de datos dinámicos desde una API o base de datos
     const fetchProfile = async () => {
-      const userProfile = {
-        full_name: 'Usuario',
-        email: 'usuario@ejemplo.com',
-        subscription_status: 'active', // Ajusta este valor según los datos reales
+      const fetchedProfile = {
+        full_name: 'Usuario Dinámico',
+        email: 'dinamico@ejemplo.com',
+        subscription_status: 'active', // Asegúrate de que este valor sea uno de los permitidos
         trial_end: '2023-12-31',
       };
+
       setProfile({
-        ...userProfile,
-        subscription_status: userProfile.subscription_status as 'trial' | 'active' | 'inactive',
+        ...fetchedProfile,
+        subscription_status: fetchedProfile.subscription_status as 'trial' | 'active' | 'inactive', // Conversión explícita
       });
     };
 
@@ -65,15 +64,19 @@ export default function DashboardPage() {
               content: inputMessage,
               created_at: new Date().toISOString(),
             };
+
             setMessages((prev) => [...prev, newMessage]);
             setInputMessage('');
             setIsTyping(true);
+
+            // Simulación de respuesta del asistente
             setTimeout(() => {
               const responseMessage: Message = {
                 role: 'assistant',
                 content: 'Esta es una respuesta simulada.',
                 created_at: new Date().toISOString(),
               };
+
               setMessages((prev) => [...prev, responseMessage]);
               setIsTyping(false);
             }, 1000);
