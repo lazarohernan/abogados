@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import DashboardLayout from './DashboardLayout';
-import ChatSection from './ChatSection';
+import DashboardLayout from './dashboard/DashboardLayout'; // Ruta corregida
+import ChatSection from './dashboard/ChatSection'; // Ruta corregida
 
 interface UserProfile {
   id: string;
@@ -92,6 +92,14 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">Cargando...</div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">No se pudo cargar el perfil del usuario.</div>
       </div>
     );
   }
