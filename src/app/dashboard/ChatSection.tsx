@@ -34,8 +34,11 @@ export default function ChatSection({
   }, [messages, isAtBottom]);
 
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight } = chatEndRef.current?.parentElement || {};
-    setIsAtBottom(scrollHeight - (scrollTop + clientHeight) < 50);
+    const parentElement = chatEndRef.current?.parentElement;
+    if (parentElement) {
+      const { scrollTop, scrollHeight, clientHeight } = parentElement;
+      setIsAtBottom(scrollHeight - (scrollTop + clientHeight) < 50);
+    }
   };
 
   if (subscriptionStatus === 'inactive') {
