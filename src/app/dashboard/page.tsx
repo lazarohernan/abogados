@@ -1,68 +1,68 @@
 'use client';
 
 import { useState } from 'react';
-import DashboardLayout from './DashboardLayout';
 import ChatSection from './ChatSection';
+import DashboardLayout from './DashboardLayout';
 
 interface UserProfile {
   full_name: string;
   email: string;
-  subscription_status: 'trial' | 'active' | 'inactive'; // Tipo estricto
+  subscription_status: 'trial' | 'active' | 'inactive';
   trial_end?: string | null;
 }
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  created_at?: string;
-}
-
 export default function DashboardPage() {
-  const [profile, setProfile] = useState<UserProfile>({
-    full_name: 'Usuario Prueba',
+  const [profile] = useState<UserProfile>({
+    full_name: 'Usuario Ejemplo',
     email: 'usuario@ejemplo.com',
-    subscription_status: 'active', // Valor inicial válido
+    subscription_status: 'active',
     trial_end: '2023-12-31',
   });
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState([
+    { role: 'user', content: 'Hola', created_at: new Date().toISOString() },
+    { role: 'assistant', content: '¡Hola! ¿En qué puedo ayudarte?', created_at: new Date().toISOString() },
+  ]);
+
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
+  const handleSendMessage = () => {
+    if (!inputMessage.trim()) return;
+
+    const newMessage = {
+      role: 'user',
+      content: inputMessage,
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, newMessage]);
+    setInputMessage('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'Esta es una respuesta de prueba.',
+          created_at: new Date().toISOString(),
+        },
+      ]);
+      setIsTyping(false);
+    }, 1000);
+  };
+
   return (
-    <DashboardLayout profile={profile} activeSection="chat">
+    <DashboardLayout profile={profile}>
       <ChatSection
         profile={profile}
         messages={messages}
         setMessages={setMessages}
-        isTyping={isTyping}
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
-        handleSendMessage={() => {
-          if (inputMessage.trim()) {
-            const newMessage: Message = {
-              role: 'user',
-              content: inputMessage,
-              created_at: new Date().toISOString(),
-            };
-
-            setMessages((prev) => [...prev, newMessage]);
-            setInputMessage('');
-            setIsTyping(true);
-
-            // Simulación de respuesta del asistente
-            setTimeout(() => {
-              const responseMessage: Message = {
-                role: 'assistant',
-                content: 'Esta es una respuesta simulada.',
-                created_at: new Date().toISOString(),
-              };
-
-              setMessages((prev) => [...prev, responseMessage]);
-              setIsTyping(false);
-            }, 1000);
-          }
-        }}
+        handleSendMessage={handleSendMessage}
+        isTyping={isTyping}
       />
     </DashboardLayout>
   );
