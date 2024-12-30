@@ -1,8 +1,5 @@
-// DashboardLayout.tsx
 'use client';
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { ReactNode } from 'react';
 
 interface DashboardLayoutProps {
@@ -13,11 +10,10 @@ interface DashboardLayoutProps {
     subscription_status: 'trial' | 'active' | 'inactive';
     trial_end?: string | null;
   };
+  activeSection: string; // Nueva propiedad
 }
 
-export default function DashboardLayout({ children, profile }: DashboardLayoutProps) {
-  const pathname = usePathname();
-
+export default function DashboardLayout({ children, profile, activeSection }: DashboardLayoutProps) {
   const menuItems = [
     { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard' },
     { id: 'history', label: 'Historial', icon: '📚', href: '/dashboard/history' },
@@ -51,18 +47,18 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
         {/* Menú de navegación */}
         <nav className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => (
-            <Link key={item.id} href={item.href}>
-              <a
-                className={`flex items-center px-4 py-2 rounded-md transition ${
-                  pathname === item.href
-                    ? 'bg-blue-50 text-blue-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <span className="mr-3">{item.icon}</span>
-                <span>{item.label}</span>
-              </a>
-            </Link>
+            <a
+              key={item.id}
+              href={item.href}
+              className={`flex items-center px-4 py-2 rounded-md transition ${
+                activeSection === item.id
+                  ? 'bg-blue-50 text-blue-600 font-semibold'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span className="mr-3">{item.icon}</span>
+              <span>{item.label}</span>
+            </a>
           ))}
         </nav>
 
