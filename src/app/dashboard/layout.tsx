@@ -6,10 +6,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       profile={{
         full_name: 'Usuario',
         email: 'usuario@ejemplo.com',
-        subscription_status: 'active',
+        subscription_status: 'active', // Sustituir con datos reales si están disponibles
         trial_end: '2023-12-31',
       }}
-      activeSection="chat" // Define la sección activa según la página
+      activeSection="chat" // Cambiar según la sección activa
     >
       {children}
     </DashboardLayout>
