@@ -12,17 +12,17 @@ interface Message {
 interface UserProfile {
   full_name: string;
   email: string;
-  subscription_status: 'trial' | 'active' | 'inactive'; // Added to ensure profile aligns with other components
+  subscription_status: 'trial' | 'active' | 'inactive'; // Ensure alignment with expected types in all components // Added to ensure profile aligns with other components
   trial_end?: string | null; // Added to ensure profile aligns with other components
 }
 
 interface ChatSectionProps {
   profile: UserProfile;
   messages: Message[];
-  setMessages: Dispatch<SetStateAction<Message[]>>; // Updated to align with React's state management conventions
+  setMessages: Dispatch<SetStateAction<Message[]>>; // Updated to align with React's state handling
   isTyping: boolean;
   inputMessage: string;
-  setInputMessage: Dispatch<SetStateAction<string>>; // Updated to align with React's state management conventions
+  setInputMessage: Dispatch<SetStateAction<string>>; // Updated to align with React's state handling
   handleSendMessage: () => void;
 }
 
