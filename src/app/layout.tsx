@@ -1,26 +1,14 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+'use client';
 
-const inter = Inter({ subsets: ["latin"] });
+import DashboardLayout from './DashboardLayout';
 
-export const metadata: Metadata = {
-  title: "LegalIA Honduras",
-  description: "Plataforma de asistencia legal con IA",
-};
+export default function Layout({ children }: { children: React.ReactNode }) {
+  const profile = {
+    full_name: 'Usuario',
+    email: 'usuario@ejemplo.com',
+    subscription_status: 'active' as const,
+    trial_end: '2023-12-31',
+  };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="es">
-      <body className={inter.className}>
-        <main className="flex min-h-screen flex-col bg-gray-50">
-          {children}
-        </main>
-      </body>
-    </html>
-  );
+  return <DashboardLayout profile={profile}>{children}</DashboardLayout>;
 }
