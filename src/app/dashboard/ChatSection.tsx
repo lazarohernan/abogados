@@ -1,9 +1,10 @@
+// ChatSection.tsx
 'use client';
 
-import { Dispatch, SetStateAction, useRef, useEffect } from 'react';
+import { useRef, useEffect, Dispatch, SetStateAction } from 'react';
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant'; // Ensure 'role' is consistently defined throughout the system.
   content: string;
   created_at?: string;
 }
@@ -11,15 +12,17 @@ interface Message {
 interface UserProfile {
   full_name: string;
   email: string;
+  subscription_status: 'trial' | 'active' | 'inactive'; // Added to ensure profile aligns with other components
+  trial_end?: string | null; // Added to ensure profile aligns with other components
 }
 
 interface ChatSectionProps {
   profile: UserProfile;
   messages: Message[];
-  setMessages: Dispatch<SetStateAction<Message[]>>; // Se agrega esta propiedad
+  setMessages: Dispatch<SetStateAction<Message[]>>; // Updated to align with React's state management conventions
   isTyping: boolean;
   inputMessage: string;
-  setInputMessage: Dispatch<SetStateAction<string>>;
+  setInputMessage: Dispatch<SetStateAction<string>>; // Updated to align with React's state management conventions
   handleSendMessage: () => void;
 }
 
