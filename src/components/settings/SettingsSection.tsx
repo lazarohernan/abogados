@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import UserProfile from '@/types/profile';
 
 interface SettingsSectionProps {
-  profile: {
-    full_name: string;
-    email: string;
-  };
+  profile: UserProfile; // Usamos el tipo UserProfile definido en types/profile.ts
 }
 
 export default function SettingsSection({ profile }: SettingsSectionProps) {
@@ -60,7 +58,7 @@ export default function SettingsSection({ profile }: SettingsSectionProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6">Configuración de Cuenta</h1>
 
       {successMessage && (
