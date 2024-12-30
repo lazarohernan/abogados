@@ -6,9 +6,11 @@ import DashboardLayout from '../DashboardLayout';
 import SettingsSection from '@/components/settings/SettingsSection';
 
 interface UserProfile {
+  id: string;
   full_name: string;
   email: string;
-  subscription_status?: string;
+  subscription_status?: 'trial' | 'active' | 'inactive';
+  trial_end?: string | null;
 }
 
 export default function SettingsPage() {
@@ -20,26 +22,27 @@ export default function SettingsPage() {
 
   async function fetchProfile() {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('Usuario no autenticado.');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      if (error) throw error;
+        if (error) throw error;
 
-      setProfile(data);
+        setProfile(data);
+      }
     } catch (err) {
-      console.error('Error al obtener el perfil:', err);
+      console.error('Error fetching profile:', err);
     }
   }
 
   if (!profile) return <div>Cargando...</div>;
 
   return (
-    <DashboardLayout profile={profile}>
+    <DashboardLayout profile={profile} activeSection="settings">
       <SettingsSection profile={profile} />
     </DashboardLayout>
   );
