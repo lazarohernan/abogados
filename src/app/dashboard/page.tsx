@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import DashboardLayout from './DashboardLayout';
 import ChatSection from './ChatSection';
@@ -13,6 +14,7 @@ interface Message {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -23,20 +25,17 @@ export default function DashboardPage() {
   }, []);
 
   async function fetchProfile() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        return;
-      }
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login');
+      return;
     }
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    setProfile(data);
   }
 
   const handleSendMessage = async () => {
@@ -48,14 +47,15 @@ export default function DashboardPage() {
     setIsTyping(true);
 
     try {
-      // Simulación de respuesta - Reemplazar con tu lógica de API
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: 'Respuesta simulada del asistente legal'
-        }]);
-        setIsTyping(false);
-      }, 1000);
+      // Replace with actual API call
+      const response = await fetch('/api/send-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: inputMessage }),
+      });
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
+      setIsTyping(false);
     } catch (error) {
       console.error('Error:', error);
       setIsTyping(false);
