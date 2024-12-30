@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export default function SettingsSection({ profile }: { profile: any }) {
+interface ProfileProps {
+  full_name: string;
+  email: string;
+}
+
+export default function SettingsSection({ profile }: { profile: ProfileProps }) {
   const [formData, setFormData] = useState({
     fullName: profile?.full_name || '',
     email: profile?.email || '',
@@ -38,15 +43,23 @@ export default function SettingsSection({ profile }: { profile: any }) {
         },
       });
 
-      if (error) throw error;
-
-      setSuccessMessage('Configuración actualizada exitosamente.');
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
+      if (error) {
+        switch (error.code) {
+          case 'invalid_email':
+            setErrorMessage('Invalid email address.');
+            break;
+          case 'invalid_password':
+            setErrorMessage('Invalid password. Please choose a stronger password.');
+            break;
+          // Add more specific error cases
+          default:
+            setErrorMessage('An error occurred. Please try again.');
+        }
       } else {
-        setErrorMessage('Error al actualizar la configuración.');
+        setSuccessMessage('Account settings updated successfully.');
       }
+    } catch (error) {
+      setErrorMessage('An unexpected error occurred. Please try again later.');
     } finally {
       setLoading(false);
     }
