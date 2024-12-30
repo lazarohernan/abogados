@@ -59,6 +59,7 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
 
   return (
     <div className="h-screen flex bg-gray-50">
+      {/* Sidebar */}
       <aside
         className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 transform lg:relative lg:translate-x-0 w-64 bg-white border-r transition-transform duration-200 ease-in-out z-30`}
       >
@@ -105,6 +106,8 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
           </div>
         </div>
       </aside>
+
+      {/* Contenido principal */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <WelcomePopup />
         <button
@@ -113,7 +116,7 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
         >
           {isSidebarOpen ? '✕' : '☰'}
         </button>
-        {children}
+        {children} {/* Aquí se renderiza el ChatSection */}
       </main>
     </div>
   );
