@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import DashboardLayout from './DashboardLayout'; // Ruta corregida
-import ChatSection from './ChatSection'; // Ruta corregida
+import DashboardLayout from './DashboardLayout';
+import ChatSection from './ChatSection';
 
 export default function Page() {
   const [messages, setMessages] = useState<any[]>([]);
