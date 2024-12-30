@@ -1,17 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import UserProfile from '@/types/profile';
 import DashboardLayout from '../DashboardLayout';
 import SettingsSection from '@/components/settings/SettingsSection';
-
-interface UserProfile {
-  id: string;
-  full_name: string;
-  email: string;
-  subscription_status?: 'trial' | 'active' | 'inactive';
-  trial_end?: string | null;
-}
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -21,22 +13,8 @@ export default function SettingsPage() {
   }, []);
 
   async function fetchProfile() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) throw error;
-
-        setProfile(data);
-      }
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-    }
+    const { data } = await fetch('/api/profile'); // Ejemplo de API
+    setProfile(data as UserProfile);
   }
 
   if (!profile) return <div>Cargando...</div>;
