@@ -65,6 +65,7 @@ export default function ChatSection({
 
   return (
     <div className="flex-1 flex flex-col bg-white">
+      {/* Área de chat */}
       <div className="flex-1 overflow-y-auto p-4" onScroll={handleScroll}>
         <div className="space-y-4">
           {messages.map((message, index) => (
@@ -117,6 +118,8 @@ export default function ChatSection({
           <div ref={chatEndRef} />
         </div>
       </div>
+
+      {/* Área de entrada */}
       <div className="border-t p-4">
         <div className="flex space-x-4">
           <textarea
