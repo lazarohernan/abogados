@@ -27,7 +27,6 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
 
   return (
     <div className="h-screen flex bg-gray-50">
-      {/* Sidebar */}
       <aside className="w-64 bg-gray-100 border-r flex flex-col justify-between">
         <div>
           <div className="p-4 border-b">
@@ -63,8 +62,6 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
           </button>
         </div>
       </aside>
-
-      {/* Contenido principal */}
       <main className="flex-1 flex flex-col overflow-hidden">{children}</main>
     </div>
   );
