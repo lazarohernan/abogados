@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import UserProfile from '@/types/profile'; // Importa el tipo UserProfile
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  profile: UserProfile;
+  profile: UserProfile; // Usa el tipo importado
   activeSection?: 'chat' | 'settings' | 'history' | 'subscription';
 }
 
