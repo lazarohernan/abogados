@@ -3,7 +3,14 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export default function SettingsSection({ profile }: { profile: any }) {
+interface SettingsSectionProps {
+  profile: {
+    full_name: string;
+    email: string;
+  };
+}
+
+export default function SettingsSection({ profile }: SettingsSectionProps) {
   const [formData, setFormData] = useState({
     fullName: profile?.full_name || '',
     email: profile?.email || '',
