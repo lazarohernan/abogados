@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UserProfile } from '@/types/UserProfile';
+import UserProfile from '@/types/profile';
 import DashboardLayout from './dashboard/DashboardLayout';
 import ChatSection from './dashboard/ChatSection';
 
@@ -13,44 +13,19 @@ interface Message {
 
 export default function DashboardPage() {
   const [profile] = useState<UserProfile>({
-    id: '123', // Asegúrate de incluir el id
-    full_name: 'Usuario Prueba',
+    id: '123',
     email: 'usuario@ejemplo.com',
-    subscription_status: 'active', // Valor predeterminado
+    full_name: 'Usuario Prueba',
+    avatar_url: 'https://example.com/avatar.jpg',
+    phone: '123-456-7890',
+    subscription_status: 'active',
+    subscription_tier: 'monthly',
     trial_end: '2023-12-31',
   });
 
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'user', content: 'Hola', created_at: new Date().toISOString() },
-    { role: 'assistant', content: '¡Hola! ¿En qué puedo ayudarte?', created_at: new Date().toISOString() },
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
-
-    const newMessage: Message = {
-      role: 'user',
-      content: inputMessage,
-      created_at: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setInputMessage('');
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: 'Esta es una respuesta simulada.',
-        created_at: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsTyping(false);
-    }, 1000);
-  };
 
   return (
     <DashboardLayout profile={profile} activeSection="chat">
@@ -60,7 +35,7 @@ export default function DashboardPage() {
         isTyping={isTyping}
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
-        handleSendMessage={handleSendMessage}
+        handleSendMessage={() => {}}
       />
     </DashboardLayout>
   );
