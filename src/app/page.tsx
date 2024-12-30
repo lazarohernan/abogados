@@ -1,16 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { UserProfile } from '@/types/UserProfile';
 import DashboardLayout from './dashboard/DashboardLayout';
 import ChatSection from './dashboard/ChatSection';
-
-interface UserProfile {
-  id: string;
-  full_name: string;
-  email: string;
-  subscription_status?: 'trial' | 'active' | 'inactive';
-  trial_end?: string | null;
-}
 
 interface Message {
   role: 'user' | 'assistant';
@@ -20,10 +13,10 @@ interface Message {
 
 export default function DashboardPage() {
   const [profile] = useState<UserProfile>({
-    id: '123', // Incluye 'id'
+    id: '123', // Asegúrate de incluir el id
     full_name: 'Usuario Prueba',
     email: 'usuario@ejemplo.com',
-    subscription_status: 'active',
+    subscription_status: 'active', // Valor predeterminado
     trial_end: '2023-12-31',
   });
 
