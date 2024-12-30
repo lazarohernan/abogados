@@ -14,9 +14,10 @@ interface UserProfile {
 interface DashboardLayoutProps {
   children: React.ReactNode;
   profile: UserProfile;
+  activeSection?: string; // Propiedad añadida
 }
 
-export default function DashboardLayout({ children, profile }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, profile, activeSection }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -50,7 +51,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
                 <Link key={item.id} href={item.href} passHref>
                   <div
                     className={`flex items-center px-4 py-2 rounded-md transition ${
-                      pathname === item.href
+                      activeSection === item.id || pathname === item.href
                         ? 'bg-blue-50 text-blue-600 font-semibold'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
