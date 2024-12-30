@@ -1,44 +1,68 @@
 'use client';
 
 import { useState } from 'react';
-import DashboardLayout from './dashboard/DashboardLayout'; // Ruta corregida
-import ChatSection from './dashboard/ChatSection'; // Ruta corregida
+import DashboardLayout from './dashboard/DashboardLayout';
+import ChatSection from './dashboard/ChatSection';
 
-export default function Page() {
-  const [messages, setMessages] = useState<any[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [inputMessage, setInputMessage] = useState('');
+interface UserProfile {
+  full_name: string;
+  email: string;
+  subscription_status: 'trial' | 'active' | 'inactive'; // Tipo estricto
+  trial_end?: string | null;
+}
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
-      setMessages((prev) => [...prev, { role: 'user', content: inputMessage }]);
-      setInputMessage('');
-      setIsTyping(true);
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { role: 'assistant', content: 'Respuesta del asistente' }]);
-        setIsTyping(false);
-      }, 1000);
-    }
-  };
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  created_at?: string;
+}
 
-  const profile = {
+export default function DashboardPage() {
+  const [profile, setProfile] = useState<UserProfile>({
     full_name: 'Usuario de Prueba',
     email: 'usuario@ejemplo.com',
-    subscription_status: 'active',
+    subscription_status: 'active' as 'trial' | 'active' | 'inactive', // Forzar tipo
     trial_end: '2023-12-31',
-  };
+  });
+
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   return (
     <DashboardLayout profile={profile} activeSection="chat">
       <ChatSection
         profile={profile}
         messages={messages}
+        setMessages={setMessages}
         isTyping={isTyping}
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
-        handleSendMessage={handleSendMessage}
-        subscriptionStatus={profile.subscription_status}
-        trialEnd={profile.trial_end || undefined}
+        handleSendMessage={() => {
+          if (inputMessage.trim()) {
+            const newMessage: Message = {
+              role: 'user',
+              content: inputMessage,
+              created_at: new Date().toISOString(),
+            };
+
+            setMessages((prev) => [...prev, newMessage]);
+            setInputMessage('');
+            setIsTyping(true);
+
+            // Simulación de respuesta del asistente
+            setTimeout(() => {
+              const responseMessage: Message = {
+                role: 'assistant',
+                content: 'Esta es una respuesta simulada.',
+                created_at: new Date().toISOString(),
+              };
+
+              setMessages((prev) => [...prev, responseMessage]);
+              setIsTyping(false);
+            }, 1000);
+          }
+        }}
       />
     </DashboardLayout>
   );
