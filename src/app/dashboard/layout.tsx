@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import DashboardLayout from './DashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import UserProfile from '@/types/profile'; // Importa el tipo UserProfile
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             return;
           }
 
-          setProfile(data);
+          setProfile(data as UserProfile); // Asegura que `data` se ajuste a `UserProfile`
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
