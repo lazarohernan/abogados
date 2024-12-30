@@ -21,7 +21,7 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
   const pathname = usePathname(); // Detecta la ruta actual
 
   const menuItems = [
-    { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard' },
+    { id: 'chat', label: 'Chat', icon: '💬', href: '/dashboard/chat' },
     { id: 'history', label: 'Historial', icon: '📚', href: '/dashboard/history' },
     { id: 'settings', label: 'Configuración', icon: '⚙️', href: '/dashboard/settings' },
     { id: 'subscription', label: 'Suscripción', icon: '💳', href: '/dashboard/subscription' },
