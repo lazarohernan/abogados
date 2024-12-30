@@ -14,7 +14,7 @@ const supabase = createClient(
 interface DashboardLayoutProps {
   children: React.ReactNode;
   profile: any;
-  activeSection?: 'chat' | 'settings' | 'history' | 'subscription'; // Hacerla opcional
+  activeSection?: 'chat' | 'settings' | 'history' | 'subscription';
 }
 
 export default function DashboardLayout({ children, profile, activeSection = 'chat' }: DashboardLayoutProps) {
@@ -59,7 +59,6 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
 
   return (
     <div className="h-screen flex bg-gray-50">
-      {/* Sidebar */}
       <aside
         className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 transform lg:relative lg:translate-x-0 w-64 bg-white border-r transition-transform duration-200 ease-in-out z-30`}
       >
@@ -69,8 +68,6 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
               LegalIA
             </Link>
           </div>
-
-          {/* Perfil del usuario */}
           <div className="p-4 border-b">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -82,8 +79,6 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
               </div>
             </div>
           </div>
-
-          {/* Menú de navegación */}
           <nav className="flex-1 p-4 space-y-1">
             {menuItems.map((item) => (
               <Link
@@ -99,8 +94,6 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
               </Link>
             ))}
           </nav>
-
-          {/* Botón de cerrar sesión */}
           <div className="p-4 border-t">
             <button
               onClick={handleSignOut}
@@ -112,8 +105,6 @@ export default function DashboardLayout({ children, profile, activeSection = 'ch
           </div>
         </div>
       </aside>
-
-      {/* Contenido principal */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <WelcomePopup />
         <button
