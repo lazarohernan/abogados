@@ -1,0 +1,44 @@
+{
+  "name": "chat-platform",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "@prisma/client": "^5.7.1",
+    "@stripe/stripe-js": "^2.2.0",
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "stripe": "^14.7.0",
+    "zustand": "^4.4.7"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/next": "^8.0.7",
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.2.17",
+    "@types/stripe": "^8.0.417",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8.4.31",
+    "prisma": "^5.7.1",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.3.2"
+  }
+}
