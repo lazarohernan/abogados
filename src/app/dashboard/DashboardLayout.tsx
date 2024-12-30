@@ -14,10 +14,10 @@ const supabase = createClient(
 interface DashboardLayoutProps {
   children: React.ReactNode;
   profile: any;
-  activeSection: 'chat' | 'settings' | 'history' | 'subscription';
+  activeSection?: 'chat' | 'settings' | 'history' | 'subscription'; // Hacerla opcional
 }
 
-export default function DashboardLayout({ children, profile, activeSection }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, profile, activeSection = 'chat' }: DashboardLayoutProps) {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -29,9 +29,12 @@ export default function DashboardLayout({ children, profile, activeSection }: Da
   ];
 
   const handleSignOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      router.push('/');
+    const confirmLogout = confirm('¿Estás seguro de que deseas cerrar sesión?');
+    if (confirmLogout) {
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        router.push('/');
+      }
     }
   }, [router]);
 
