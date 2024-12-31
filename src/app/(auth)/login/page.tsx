@@ -59,6 +59,8 @@ export default function Login() {
     } catch (err: any) {
       if (err.code === 'auth/validation-error' && err.errors) {
         setFormErrors(err.errors);
+      } else if (err instanceof Error) {
+        console.error('Error:', err.message);
       }
     }
   };
