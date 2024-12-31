@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import * as React from 'react';
 import UserProfile from '@/types/profile';
 import DashboardLayout from './dashboard/DashboardLayout';
 import ChatSection from './dashboard/ChatSection';
@@ -12,7 +12,7 @@ interface Message {
 }
 
 export default function DashboardPage() {
-  const [profile] = useState<UserProfile>({
+  const [profile] = React.useState<UserProfile>({
     id: '123',
     email: 'usuario@ejemplo.com',
     full_name: 'Usuario Prueba',
@@ -23,12 +23,15 @@ export default function DashboardPage() {
     trial_end: '2023-12-31',
   });
 
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = React.useState('');
+  const [isTyping, setIsTyping] = React.useState(false);
 
   return (
-    <DashboardLayout profile={profile} activeSection="chat">
+    <DashboardLayout 
+      profile={profile} 
+      activeSection="chat"
+    >
       <ChatSection
         profile={profile}
         messages={messages}
