@@ -138,7 +138,6 @@ export default function Register() {
     <div className="min-h-screen flex bg-gradient-to-b from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full space-y-8 m-auto">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Sección informativa */}
           <div className="md:w-1/2 space-y-6">
             <Link href="/" className="text-2xl font-bold text-blue-600">
               LegalIA Honduras
@@ -183,7 +182,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Formulario de registro */}
           <div className="md:w-1/2">
             <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">Crear cuenta nueva</h3>
@@ -284,7 +282,7 @@ export default function Register() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {loading ? 'Creando cuenta...' : 'Crear cuenta'}
                   </button>
