@@ -7,26 +7,35 @@ import UserProfile from '@/types/profile';
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const timeout = setTimeout(() => setIsLoading(false), 10000); // Manejo de carga
+
     fetchProfile();
+
+    return () => clearTimeout(timeout);
   }, []);
 
   async function fetchProfile() {
     try {
-      const response = await fetch('/api/profile'); // Llama a tu API
+      const response = await fetch('/api/profile');
       if (!response.ok) {
-        throw new Error('Error al obtener el perfil'); // Maneja errores HTTP
+        throw new Error('Error al obtener el perfil');
       }
 
-      const data = await response.json(); // Procesa la respuesta como JSON
-      setProfile(data as UserProfile); // Asegúrate de que `data` coincide con `UserProfile`
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+      const data = await response.json();
+      setProfile(data as UserProfile);
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      setError(err.message);
     }
   }
 
-  if (!profile) return <div>Cargando...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (isLoading) return <div>Cargando...</div>;
+  if (!profile) return null;
 
   return (
     <DashboardLayout profile={profile} activeSection="settings">
