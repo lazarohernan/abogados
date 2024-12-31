@@ -11,30 +11,32 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setIsLoading(false), 10000); // Manejo de carga
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/api/profile'); // Llama a tu API
+        if (!response.ok) {
+          throw new Error('Error al obtener el perfil'); // Maneja errores HTTP
+        }
+
+        const data = await response.json();
+        setProfile(data as UserProfile); // Asegúrate de que `data` coincide con `UserProfile`
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        if (err instanceof Error) {
+          setError(err.message); // Maneja errores conocidos
+        } else {
+          setError('Ocurrió un error desconocido'); // Maneja errores desconocidos
+        }
+      } finally {
+        setIsLoading(false); // Asegúrate de desactivar la carga siempre
+      }
+    };
 
     fetchProfile();
-
-    return () => clearTimeout(timeout);
   }, []);
 
-  async function fetchProfile() {
-    try {
-      const response = await fetch('/api/profile');
-      if (!response.ok) {
-        throw new Error('Error al obtener el perfil');
-      }
-
-      const data = await response.json();
-      setProfile(data as UserProfile);
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-      setError(err.message);
-    }
-  }
-
-  if (error) return <div>Error: {error}</div>;
   if (isLoading) return <div>Cargando...</div>;
+  if (error) return <div>Error: {error}</div>;
   if (!profile) return null;
 
   return (
